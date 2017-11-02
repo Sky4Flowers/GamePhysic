@@ -43,6 +43,12 @@ public:
 	}
 
 private:
+	// Structs
+	struct MassPoint{
+		Vec3 pos;
+		Vec3 vel;
+	};
+
 	// Data Attributes
 	float m_fMass;
 	float m_fStiffness;
@@ -50,11 +56,13 @@ private:
 	int m_iIntegrator;
 	int m_numSpheres;
 	float m_sphereSize;
+	vector<MassPoint> m_massPoints;
 
 	// UI Attributes
 	Vec3 m_externalForce;
 	Point2D m_mouse;
 	Point2D m_trackmouse;
 	Point2D m_oldtrackmouse;
+
 };
 #endif

@@ -2,12 +2,21 @@
 // Construtors
 MassSpringSystemSimulator::MassSpringSystemSimulator(){
 	//TODO:
+	m_iTestCase = 0;
+	MassPoint sphere1;
+	MassPoint sphere2;
+	sphere1.pos = Vec3(0, 0, 0);
+	sphere2.pos = Vec3(0, 2, 0);
+	sphere1.vel = Vec3(-1, 0, 0);
+	sphere2.vel = Vec3(1, 0, 0);
+	m_massPoints.push_back(sphere1);
+	m_massPoints.push_back(sphere2);
 }
 
 // UI Functions
 const char * MassSpringSystemSimulator::getTestCasesStr(){
 	//Only Dummyimplementation
-	return "EULER, LEAPFROG, MIDPOINT";
+	return "Euler, Leapfrog, Midpoint";
 }
 
 void MassSpringSystemSimulator::initUI(DrawingUtilitiesClass * DUC){
