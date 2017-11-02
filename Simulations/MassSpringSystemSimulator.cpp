@@ -77,7 +77,7 @@ void MassSpringSystemSimulator::setDampingFactor(float damping){
 }
 
 int MassSpringSystemSimulator::addMassPoint(Vec3 position, Vec3 Velocity, bool isFixed){
-	
+	return 0;
 }
 
 void MassSpringSystemSimulator::addSpring(int masspoint1, int masspoint2, float initialLength){
@@ -85,19 +85,19 @@ void MassSpringSystemSimulator::addSpring(int masspoint1, int masspoint2, float 
 }
 
 int MassSpringSystemSimulator::getNumberOfMassPoints(){
-
+	return 2;
 }
 
 int MassSpringSystemSimulator::getNumberOfSprings(){
-
+	return 1;
 }
 
 Vec3 MassSpringSystemSimulator::getPositionOfMassPoint(int index){
-
+	return Vec3();
 }
 
 Vec3 MassSpringSystemSimulator::getVelocityOfMassPoint(int index){
-
+	return Vec3();
 }
 
 void MassSpringSystemSimulator::applyExternalForce(Vec3 force){
