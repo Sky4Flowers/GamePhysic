@@ -7,11 +7,15 @@ MassSpringSystemSimulator::MassSpringSystemSimulator(){
 // UI Functions
 const char * MassSpringSystemSimulator::getTestCasesStr(){
 	//Only Dummyimplementation
-	return "Version1, Version2";
+	return "EULER, LEAPFROG, MIDPOINT";
 }
 
 void MassSpringSystemSimulator::initUI(DrawingUtilitiesClass * DUC){
-
+	m_numSpheres = 2;
+	m_sphereSize = 0.05f;
+	this->DUC = DUC;
+	TwAddVarRW(DUC->g_pTweakBar, "Num Spheres", TW_TYPE_INT32, &m_numSpheres, "min=1");
+	TwAddVarRW(DUC->g_pTweakBar, "Sphere Size", TW_TYPE_FLOAT, &m_sphereSize, "min=0.01 step=0.01");
 }
 
 void MassSpringSystemSimulator::reset(){
@@ -22,7 +26,16 @@ void MassSpringSystemSimulator::reset(){
 }
 
 void MassSpringSystemSimulator::drawFrame(ID3D11DeviceContext* pd3dImmediateContext){
-
+	std::mt19937 eng;
+	std::uniform_real_distribution<float> randCol(0.0f, 1.0f);
+	std::uniform_real_distribution<float> randPos(-0.5f, 0.5f);
+	DUC->setUpLighting(Vec3(), 0.4*Vec3(1, 1, 1), 100, 0.6*Vec3(randCol(eng), randCol(eng), randCol(eng)));
+	//For more Spheres
+	//for (int i = 0; i<m_numSpheres; i++)
+	//{
+		DUC->drawSphere(Vec3(0,0,0), Vec3(m_sphereSize, m_sphereSize, m_sphereSize));
+	//}
+		DUC->drawSphere(Vec3(0,2,0), Vec3(m_sphereSize, m_sphereSize, m_sphereSize));
 }
 
 void MassSpringSystemSimulator::notifyCaseChanged(int testCase){

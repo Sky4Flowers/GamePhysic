@@ -48,6 +48,8 @@ private:
 	float m_fStiffness;
 	float m_fDamping;
 	int m_iIntegrator;
+	int m_numSpheres;
+	float m_sphereSize;
 
 	// UI Attributes
 	Vec3 m_externalForce;
