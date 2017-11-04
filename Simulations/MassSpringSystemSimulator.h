@@ -50,6 +50,29 @@ private:
 	int m_iIntegrator;
 	int m_numSpheres;
 	float m_sphereSize;
+	//used to scale the system to the box in the simulator, hard coded to 1/4
+	float fitToBoxCoef;
+
+	//struct for mass points
+	struct massPoint {
+		Vec3 Pos;//positon
+		Vec3 Vel;//velocity
+		float mass;
+		bool isFixed;
+	};
+
+	//a vector of massPoints, to iterate over
+	vector <massPoint> points;
+
+	//struct for springs
+	struct spring {
+		Vec3 point1;
+		Vec3 point2;
+		float initialLength;
+	};
+
+	//a vector of springs
+	vector<spring> springs;
 
 	// UI Attributes
 	Vec3 m_externalForce;

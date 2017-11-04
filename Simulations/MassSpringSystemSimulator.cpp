@@ -2,6 +2,18 @@
 // Construtors
 MassSpringSystemSimulator::MassSpringSystemSimulator(){
 	//TODO:
+	//set field values
+	m_numSpheres = 2;
+	m_sphereSize = 0.05f;
+	fitToBoxCoef = 0.25f;
+
+	//add mass points
+	addMassPoint(Vec3(0, 0, 0), Vec3(0, 0, 0), true); //velocity set to 0 temporarely
+	addMassPoint(Vec3(0, 2, 0), Vec3(0, 0, 0), true);
+
+	//add a spring between the 2 mass points
+	addSpring(0, 1, 1);
+	setStiffness(40);
 }
 
 // UI Functions
@@ -11,8 +23,6 @@ const char * MassSpringSystemSimulator::getTestCasesStr(){
 }
 
 void MassSpringSystemSimulator::initUI(DrawingUtilitiesClass * DUC){
-	m_numSpheres = 2;
-	m_sphereSize = 0.05f;
 	this->DUC = DUC;
 	TwAddVarRW(DUC->g_pTweakBar, "Num Spheres", TW_TYPE_INT32, &m_numSpheres, "min=1");
 	TwAddVarRW(DUC->g_pTweakBar, "Sphere Size", TW_TYPE_FLOAT, &m_sphereSize, "min=0.01 step=0.01");
@@ -31,11 +41,15 @@ void MassSpringSystemSimulator::drawFrame(ID3D11DeviceContext* pd3dImmediateCont
 	std::uniform_real_distribution<float> randPos(-0.5f, 0.5f);
 	DUC->setUpLighting(Vec3(0,1,0), 0.4*Vec3(0, 0, 0), 100, 0.6*Vec3(1,1,1));
 	//For more Spheres
-	//for (int i = 0; i<m_numSpheres; i++)
-	//{
-		DUC->drawSphere(Vec3(0,0,0), Vec3(m_sphereSize, m_sphereSize, m_sphereSize));
-	//}
-		DUC->drawSphere(Vec3(0,2,0), Vec3(m_sphereSize, m_sphereSize, m_sphereSize));
+	for (int i = 0; i<m_numSpheres; i++)
+	{
+		DUC->drawSphere(points[i].Pos, Vec3(m_sphereSize, m_sphereSize, m_sphereSize));
+	}	
+		//begin line
+		DUC->beginLine();
+		//DUC->drawLine(Vec3(0, 0, 0), Vec3(1, 1, 1), Vec3(0, 2, 0), Vec3(0, 0, 1));
+		DUC->drawLine(springs[0].point1, Vec3(1, 1, 1), springs[0].point2, Vec3(1, 1, 1));
+		DUC->endLine();
 }
 
 void MassSpringSystemSimulator::notifyCaseChanged(int testCase){
@@ -77,11 +91,22 @@ void MassSpringSystemSimulator::setDampingFactor(float damping){
 }
 
 int MassSpringSystemSimulator::addMassPoint(Vec3 position, Vec3 Velocity, bool isFixed){
+	massPoint tmp;
+	tmp.isFixed = isFixed;
+	tmp.Pos = position;
+	tmp.Vel = Velocity;
+	points.push_back(tmp);
+	cout << "Added a point to the list!\n";
 	return 0;
 }
 
 void MassSpringSystemSimulator::addSpring(int masspoint1, int masspoint2, float initialLength){
-
+	spring tmp;
+	tmp.point1 = points[masspoint1].Pos;
+	tmp.point2 = points[masspoint2].Pos;
+	tmp.initialLength = initialLength;
+	springs.push_back(tmp);
+	cout << "Added a spring!\n";
 }
 
 int MassSpringSystemSimulator::getNumberOfMassPoints(){
