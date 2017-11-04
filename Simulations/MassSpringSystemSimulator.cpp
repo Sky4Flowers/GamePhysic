@@ -8,8 +8,8 @@ MassSpringSystemSimulator::MassSpringSystemSimulator(){
 	fitToBoxCoef = 0.25f;
 
 	//add mass points
-	addMassPoint(Vec3(0, 0, 0), Vec3(0, 0, 0), true); //velocity set to 0 temporarely
-	addMassPoint(Vec3(0, 2, 0), Vec3(0, 0, 0), true);
+	addMassPoint(Vec3(0, 0, 0), Vec3(-1, 0, 0), false); //velocity set to 0 temporarely
+	addMassPoint(Vec3(0, 2, 0), Vec3(1, 0, 0), false);
 
 	//add a spring between the 2 mass points
 	addSpring(0, 1, 1);
@@ -61,7 +61,13 @@ void MassSpringSystemSimulator::externalForcesCalculations(float timeElapsed){
 }
 
 void MassSpringSystemSimulator::simulateTimestep(float timeStep){
-
+	//starting with only euler, no forces yet
+	for (int i = 0; i < m_numSpheres; i++) {
+		points[i].Pos += points[i].Vel * timeStep;
+	}
+	//update spring points
+	springs[0].point1 = points[0].Pos;
+	springs[0].point2 = points[1].Pos;
 }
 
 void MassSpringSystemSimulator::onClick(int x, int y){
