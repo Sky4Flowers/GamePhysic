@@ -43,12 +43,6 @@ public:
 	}
 
 private:
-	// Structs
-	struct MassPoint{
-		Vec3 pos;
-		Vec3 vel;
-	};
-
 	// Data Attributes
 	float m_fMass;
 	float m_fStiffness;
@@ -56,13 +50,34 @@ private:
 	int m_iIntegrator;
 	int m_numSpheres;
 	float m_sphereSize;
-	vector<MassPoint> m_massPoints;
+	//used to scale the system to the box in the simulator, hard coded to 1/4
+	float fitToBoxCoef;
+
+	//struct for mass points
+	struct massPoint {
+		Vec3 Pos;//positon
+		Vec3 Vel;//velocity
+		float mass;
+		bool isFixed;
+	};
+
+	//a vector of massPoints, to iterate over
+	vector <massPoint> points;
+
+	//struct for springs
+	struct spring {
+		Vec3 point1;
+		Vec3 point2;
+		float initialLength;
+	};
+
+	//a vector of springs
+	vector<spring> springs;
 
 	// UI Attributes
 	Vec3 m_externalForce;
 	Point2D m_mouse;
 	Point2D m_trackmouse;
 	Point2D m_oldtrackmouse;
-
 };
 #endif
