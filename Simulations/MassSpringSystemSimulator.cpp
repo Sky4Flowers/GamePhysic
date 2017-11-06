@@ -8,7 +8,7 @@ MassSpringSystemSimulator::MassSpringSystemSimulator(){
 	fitToBoxCoef = 0.25f;
 
 	//add mass points
-	addMassPoint(Vec3(0, 0, 0), Vec3(-1, 0, 0), false); //velocity set to 0 temporarely
+	addMassPoint(Vec3(0, 0, 0), Vec3(-1, 0, 0), false);
 	addMassPoint(Vec3(0, 2, 0), Vec3(1, 0, 0), false);
 
 	//add a spring between the 2 mass points
@@ -61,8 +61,14 @@ void MassSpringSystemSimulator::externalForcesCalculations(float timeElapsed){
 }
 
 void MassSpringSystemSimulator::simulateTimestep(float timeStep){
+	//update velocities
+
 	//starting with only euler, no forces yet
 	for (int i = 0; i < m_numSpheres; i++) {
+		force = -1.0f * m_fStiffness*(springs[0].currentLength - springs[0].initialLength)*
+			(points[(i% m_numSpheres)].Pos - points[(i + 1) % m_numSpheres].Pos)/springs[0].currentLength;
+		accel = force / points[i].mass;
+		points[i].Vel += accel * timeStep;
 		points[i].Pos += points[i].Vel * timeStep;
 	}
 	//update spring points
@@ -101,6 +107,7 @@ int MassSpringSystemSimulator::addMassPoint(Vec3 position, Vec3 Velocity, bool i
 	tmp.isFixed = isFixed;
 	tmp.Pos = position;
 	tmp.Vel = Velocity;
+	tmp.mass = 10.0f;
 	points.push_back(tmp);
 	cout << "Added a point to the list!\n";
 	return 0;
@@ -111,8 +118,9 @@ void MassSpringSystemSimulator::addSpring(int masspoint1, int masspoint2, float 
 	tmp.point1 = points[masspoint1].Pos;
 	tmp.point2 = points[masspoint2].Pos;
 	tmp.initialLength = initialLength;
+	tmp.currentLength = sqrt(tmp.point1.squaredDistanceTo(tmp.point2));
 	springs.push_back(tmp);
-	cout << "Added a spring!\n";
+	cout << "Added a spring! it's currentLength is: " << tmp.currentLength << "\n";
 }
 
 int MassSpringSystemSimulator::getNumberOfMassPoints(){

@@ -52,6 +52,9 @@ private:
 	float m_sphereSize;
 	//used to scale the system to the box in the simulator, hard coded to 1/4
 	float fitToBoxCoef;
+	//used to store temporary force and acceleration
+	Vec3 force;
+	Vec3 accel;
 
 	//struct for mass points
 	struct massPoint {
@@ -69,6 +72,7 @@ private:
 		Vec3 point1;
 		Vec3 point2;
 		float initialLength;
+		float currentLength;
 	};
 
 	//a vector of springs
