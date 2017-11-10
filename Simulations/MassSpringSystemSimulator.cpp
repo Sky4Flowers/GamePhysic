@@ -2,18 +2,8 @@
 // Construtors
 MassSpringSystemSimulator::MassSpringSystemSimulator(){
 	//TODO:
-	//set field values
-	m_numSpheres = 2;
-	m_sphereSize = 0.05f;
-	//fitToBoxCoef = 0.25f;
-
-	//add mass points
-	addMassPoint(Vec3(0, 0, 0), Vec3(-1, 0, 0), false);
-	addMassPoint(Vec3(0, 2, 0), Vec3(1, 0, 0), false);
-
-	//add a spring between the 2 mass points
-	addSpring(0, 1, 1);
-	setStiffness(40);
+	
+	setIntegrator(0); //euler is the default integrator
 }
 
 // UI Functions
@@ -33,6 +23,12 @@ void MassSpringSystemSimulator::reset(){
 	m_mouse.x = m_mouse.y = 0;
 	m_trackmouse.x = m_trackmouse.y = 0;
 	m_oldtrackmouse.x = m_oldtrackmouse.y = 0;
+	cout << "reset!\n";
+	//clear vectors
+	//springs.clear();
+	//points.clear();
+	//call constructor
+	//MassSpringSystemSimulator::MassSpringSystemSimulator();
 }
 
 void MassSpringSystemSimulator::drawFrame(ID3D11DeviceContext* pd3dImmediateContext){
@@ -53,7 +49,34 @@ void MassSpringSystemSimulator::drawFrame(ID3D11DeviceContext* pd3dImmediateCont
 }
 
 void MassSpringSystemSimulator::notifyCaseChanged(int testCase){
+	cout << "Notify : " << testCase << "\n";
+	setIntegrator(testCase);
+	switch (m_iIntegrator) 
+	{
+	case 0:
+		points.clear();
+		springs.clear();
+		cout << "Integrator: Euler\n";
+		//set field values
+		m_numSpheres = 2;
+		m_sphereSize = 0.05f;
+		//fitToBoxCoef = 0.25f;
 
+		//add mass points
+		addMassPoint(Vec3(0, 0, 0), Vec3(-1, 0, 0), false);
+		addMassPoint(Vec3(0, 2, 0), Vec3(1, 0, 0), false);
+
+		//add a spring between the 2 mass points
+		addSpring(0, 1, 1);
+		setStiffness(40);
+		break;
+	case 1:
+		cout << "Integrator: Leap Frog\n";
+		break;
+	case 2:
+		cout << "Integrator: Midpoint\n";
+		break;
+	}
 }
 
 void MassSpringSystemSimulator::externalForcesCalculations(float timeElapsed){
@@ -124,21 +147,21 @@ void MassSpringSystemSimulator::addSpring(int masspoint1, int masspoint2, float 
 }
 
 int MassSpringSystemSimulator::getNumberOfMassPoints(){
-	return 2;
+	return m_numSpheres;
 }
 
 int MassSpringSystemSimulator::getNumberOfSprings(){
-	return 1;
+	return springs.size();
 }
 
 Vec3 MassSpringSystemSimulator::getPositionOfMassPoint(int index){
-	return Vec3();
+	return points[index].Pos;
 }
 
 Vec3 MassSpringSystemSimulator::getVelocityOfMassPoint(int index){
-	return Vec3();
+	return points[index].Vel;
 }
 
 void MassSpringSystemSimulator::applyExternalForce(Vec3 force){
-
+	//TODO
 }
