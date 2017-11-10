@@ -54,9 +54,9 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase){
 	switch (m_iIntegrator) 
 	{
 	case 0:
+		cout << "Integrator: Euler\n";
 		points.clear();
 		springs.clear();
-		cout << "Integrator: Euler\n";
 		//set field values
 		m_numSpheres = 2;
 		m_sphereSize = 0.05f;
@@ -75,6 +75,20 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase){
 		break;
 	case 2:
 		cout << "Integrator: Midpoint\n";
+		points.clear();
+		springs.clear();
+		//set field values
+		m_numSpheres = 2;
+		m_sphereSize = 0.05f;
+		//fitToBoxCoef = 0.25f;
+
+		//add mass points
+		addMassPoint(Vec3(0, 0, 0), Vec3(-1, 0, 0), false);
+		addMassPoint(Vec3(0, 2, 0), Vec3(1, 0, 0), false);
+
+		//add a spring between the 2 mass points
+		addSpring(0, 1, 1);
+		setStiffness(40);
 		break;
 	}
 }
@@ -83,8 +97,11 @@ void MassSpringSystemSimulator::externalForcesCalculations(float timeElapsed){
 
 }
 
-void MassSpringSystemSimulator::simulateTimestep(float timeStep){
+void MassSpringSystemSimulator::simulateTimestep(float timeStep) {
 	//euler
+	switch (m_iIntegrator)
+	{
+	case (0) :
 		for (int i = 0; i < m_numSpheres; i++) {
 			force = -1.0f * m_fStiffness*(springs[0].currentLength - springs[0].initialLength)*
 				(points[i].Pos - points[(i + 1) % m_numSpheres].Pos) / springs[0].currentLength;
@@ -92,11 +109,39 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep){
 			points[i].Vel += accel * timeStep;
 			points[i].Pos += points[i].Vel * timeStep;
 		}
-		//update spring points
-		springs[0].point1 = points[0].Pos;
-		springs[0].point2 = points[1].Pos;
+			 //update spring points
+			 springs[0].point1 = points[0].Pos;
+			 springs[0].point2 = points[1].Pos;
+			 break;
+	case(1) :
+		//leap frog
+		break;
+	case(2) :
+		//midpoint a la VL
+		for (int i = 0; i < m_numSpheres; i++)
+		{
+			Vec3 xtmp = points[i].Pos += points[i].Vel * timeStep / 2.0f;
+			force = -1.0f * m_fStiffness*(springs[0].currentLength - springs[0].initialLength)*
+				(points[i].Pos - points[(i + 1) % m_numSpheres].Pos) / springs[0].currentLength;
+			accel = force / points[i].mass;
+
+			Vec3 vtmp = points[i].Vel * accel / 2.0f;
+			points[i].Pos += timeStep * vtmp;
+
+			force = -1.0f * m_fStiffness*(springs[0].currentLength - springs[0].initialLength)*
+				(xtmp - points[(i + 1) % m_numSpheres].Pos) / springs[0].currentLength;
+			accel = force / points[i].mass;
+
+			points[i].Vel += timeStep * accel;
+		}
+			//update spring points
+			springs[0].point1 = points[0].Pos;
+			springs[0].point2 = points[1].Pos;
+			break;
+	}
+
 	//placeholder for other implementors
-	
+
 }
 
 void MassSpringSystemSimulator::onClick(int x, int y){
