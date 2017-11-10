@@ -73,6 +73,7 @@ private:
 		Vec3 point2;
 		float initialLength;
 		float currentLength;
+		//missing stiffness -> is a field in MassSpringSystemSim
 	};
 
 	//a vector of springs
