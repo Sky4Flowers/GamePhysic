@@ -112,6 +112,7 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep) {
 			 //update spring points
 			 springs[0].point1 = points[0].Pos;
 			 springs[0].point2 = points[1].Pos;
+			 springs[0].currentLength = sqrt(springs[0].point1.squaredDistanceTo(springs[0].point2));
 			 break;
 	case(1) :
 		//leap frog
@@ -120,12 +121,13 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep) {
 		//midpoint a la VL
 		for (int i = 0; i < m_numSpheres; i++)
 		{
-			Vec3 xtmp = points[i].Pos += points[i].Vel * timeStep / 2.0f;
+			Vec3 xtmp = points[i].Pos + points[i].Vel * timeStep * 0.5f;
+			//cout << xtmp <<"\n";
 			force = -1.0f * m_fStiffness*(springs[0].currentLength - springs[0].initialLength)*
 				(points[i].Pos - points[(i + 1) % m_numSpheres].Pos) / springs[0].currentLength;
 			accel = force / points[i].mass;
 
-			Vec3 vtmp = points[i].Vel * accel / 2.0f;
+			Vec3 vtmp = points[i].Vel + accel * 0.5f;
 			points[i].Pos += timeStep * vtmp;
 
 			force = -1.0f * m_fStiffness*(springs[0].currentLength - springs[0].initialLength)*
@@ -137,6 +139,7 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep) {
 			//update spring points
 			springs[0].point1 = points[0].Pos;
 			springs[0].point2 = points[1].Pos;
+			springs[0].currentLength = sqrt(springs[0].point1.squaredDistanceTo(springs[0].point2));
 			break;
 	}
 
