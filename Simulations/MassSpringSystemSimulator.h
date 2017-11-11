@@ -36,6 +36,8 @@ public:
 	Vec3 getPositionOfMassPoint(int index);
 	Vec3 getVelocityOfMassPoint(int index);
 	void applyExternalForce(Vec3 force);
+
+	void updateLength(int index);
 	
 	// Do Not Change
 	void setIntegrator(int integrator) {
@@ -69,8 +71,8 @@ private:
 
 	//struct for springs
 	struct spring {
-		Vec3 point1;
-		Vec3 point2;
+		Vec3 *point1;
+		Vec3 *point2;
 		float initialLength;
 		float currentLength;
 		//missing stiffness -> is a field in MassSpringSystemSim
