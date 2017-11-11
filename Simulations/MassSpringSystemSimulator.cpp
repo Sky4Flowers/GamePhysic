@@ -44,7 +44,7 @@ void MassSpringSystemSimulator::drawFrame(ID3D11DeviceContext* pd3dImmediateCont
 		//begin line
 		DUC->beginLine();
 		//DUC->drawLine(Vec3(0, 0, 0), Vec3(1, 1, 1), Vec3(0, 2, 0), Vec3(0, 0, 1));
-		DUC->drawLine(springs[0].point1, Vec3(1, 1, 1), springs[0].point2, Vec3(1, 1, 1));
+		DUC->drawLine(*springs[0].point1, Vec3(1, 1, 1), *springs[0].point2, Vec3(1, 1, 1));
 		DUC->endLine();
 }
 
@@ -110,9 +110,10 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep) {
 			points[i].Pos += points[i].Vel * timeStep;
 		}
 			 //update spring points
-			 springs[0].point1 = points[0].Pos;
-			 springs[0].point2 = points[1].Pos;
-			 springs[0].currentLength = sqrt(springs[0].point1.squaredDistanceTo(springs[0].point2));
+			 //springs[0].point1 = points[0].Pos;
+			 //springs[0].point2 = points[1].Pos;
+			 //springs[0].currentLength = sqrt(springs[0].point1.squaredDistanceTo(springs[0].point2));
+			 updateLength(0);
 			 break;
 	case(1) :
 		//leap frog
@@ -137,9 +138,10 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep) {
 			points[i].Vel += timeStep * accel;
 		}
 			//update spring points
-			springs[0].point1 = points[0].Pos;
-			springs[0].point2 = points[1].Pos;
-			springs[0].currentLength = sqrt(springs[0].point1.squaredDistanceTo(springs[0].point2));
+			//springs[0].point1 = points[0].Pos;
+			//springs[0].point2 = points[1].Pos;
+			//springs[0].currentLength = sqrt(springs[0].point1.squaredDistanceTo(springs[0].point2));
+			updateLength(0);
 			break;
 	}
 
@@ -186,10 +188,12 @@ int MassSpringSystemSimulator::addMassPoint(Vec3 position, Vec3 Velocity, bool i
 
 void MassSpringSystemSimulator::addSpring(int masspoint1, int masspoint2, float initialLength){
 	spring tmp;
-	tmp.point1 = points[masspoint1].Pos;
-	tmp.point2 = points[masspoint2].Pos;
+	tmp.point1 = &points[masspoint1].Pos;
+	tmp.point2 = &points[masspoint2].Pos;
 	tmp.initialLength = initialLength;
-	tmp.currentLength = sqrt(tmp.point1.squaredDistanceTo(tmp.point2));
+	Vec3 a = *tmp.point1;
+	Vec3 b = *tmp.point2;
+	tmp.currentLength = sqrt(a.squaredDistanceTo(b));
 	springs.push_back(tmp);
 	cout << "Added a spring! it's currentLength is: " << tmp.currentLength << "\n";
 }
@@ -212,4 +216,11 @@ Vec3 MassSpringSystemSimulator::getVelocityOfMassPoint(int index){
 
 void MassSpringSystemSimulator::applyExternalForce(Vec3 force){
 	//TODO
+}
+
+//method updates the currentLength value of a spring, index of the spring in the vector
+void MassSpringSystemSimulator::updateLength(int index) {
+	Vec3 a = *springs[index].point1;
+	Vec3 b = *springs[index].point2;
+	springs[index].currentLength = sqrt(a.squaredDistanceTo(b));
 }
