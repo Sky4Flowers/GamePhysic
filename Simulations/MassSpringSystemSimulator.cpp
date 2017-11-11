@@ -62,18 +62,31 @@ void MassSpringSystemSimulator::externalForcesCalculations(float timeElapsed){
 
 void MassSpringSystemSimulator::simulateTimestep(float timeStep){
 	//euler
-		for (int i = 0; i < m_numSpheres; i++) {
-			force = -1.0f * m_fStiffness*(springs[0].currentLength - springs[0].initialLength)*
-				(points[i].Pos - points[(i + 1) % m_numSpheres].Pos) / springs[0].currentLength;
-			accel = force / points[i].mass;
-			points[i].Vel += accel * timeStep;
-			points[i].Pos += points[i].Vel * timeStep;
-		}
-		//update spring points
-		springs[0].point1 = points[0].Pos;
-		springs[0].point2 = points[1].Pos;
+	for (int i = 0; i < m_numSpheres; i++) {
+		force = -1.0f * m_fStiffness*(springs[0].currentLength - springs[0].initialLength)*
+			(points[i].Pos - points[(i + 1) % m_numSpheres].Pos) / springs[0].currentLength;
+		accel = force / points[i].mass;
+		points[i].Vel += accel * timeStep;
+		points[i].Pos += points[i].Vel * timeStep;
+	}
+	//update spring points
+	springs[0].point1 = points[0].Pos;
+	springs[0].point2 = points[1].Pos;
 	//placeholder for other implementors
 	
+	//Collisions
+	int counter = 1;
+	for each (massPoint m1 in points){
+		for (int i = counter; i < points.size(); i++){
+			massPoint m2 = points[i];
+			//If two spheres collide
+			if (sqrt(pow(m1.Pos.x - m2.Pos.x, 2) + pow(m1.Pos.y - m2.Pos.y, 2) + pow(m1.Pos.z - m2.Pos.z, 2)) <= m_sphereSize){
+				//m1.Vel = (m2.mass / m1.mass)*-(DirectX::XMVector3Dot(m1.Vel.toDirectXVector, (m1.Pos - m2.Pos).toDirectXVector));
+				//m2.Vel = (m1.mass / m2.mass)*-(DirectX::XMVector3Dot(m2.Vel.toDirectXVector, (m2.Pos - m1.Pos).toDirectXVector));
+			}
+		}
+		counter++;
+	}
 }
 
 void MassSpringSystemSimulator::onClick(int x, int y){
@@ -124,19 +137,19 @@ void MassSpringSystemSimulator::addSpring(int masspoint1, int masspoint2, float 
 }
 
 int MassSpringSystemSimulator::getNumberOfMassPoints(){
-	return 2;
+	return points.size();
 }
 
 int MassSpringSystemSimulator::getNumberOfSprings(){
-	return 1;
+	return springs.size();
 }
 
 Vec3 MassSpringSystemSimulator::getPositionOfMassPoint(int index){
-	return Vec3();
+	return points[index].Pos;
 }
 
 Vec3 MassSpringSystemSimulator::getVelocityOfMassPoint(int index){
-	return Vec3();
+	return points[index].Vel;
 }
 
 void MassSpringSystemSimulator::applyExternalForce(Vec3 force){
