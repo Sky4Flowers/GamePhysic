@@ -286,7 +286,7 @@ void MassSpringSystemSimulator::midPointStep(float timeStep)
 		massPoint *b = springs[i].point2;
 		Vec3 xtmpA = a->Pos + a->Vel * timeStep / 2.0f;
 		Vec3 xtmpB = b->Pos + b->Vel * timeStep / 2.0f;
-		float currentLength = sqrt(xtmpA.squaredDistanceTo(xtmpA));
+		float currentLength = sqrt(xtmpA.squaredDistanceTo(xtmpB));
 		//elastic forces, using xtmp?!
 		Vec3 accel = calcAccel(a->Pos, b->Pos, springs[i].currentLength, springs[i].initialLength);
 		Vec3 vtmpA = a->Vel + timeStep / 2.0f * accel;
@@ -297,8 +297,5 @@ void MassSpringSystemSimulator::midPointStep(float timeStep)
 		a->Vel += timeStep * accel;
 		b->Vel += timeStep * -1.0f * accel;
 		updateLength(i);
-
-		cout << "Position of a is: " << a->Pos << "\n";
-		
 	}
 }
