@@ -8,6 +8,10 @@
 #define MIDPOINT 2
 // Do Not Change
 
+//additional defines for more scenes
+#define DEMO_ONE 3
+#define COMPLEX_EULER 4
+#define COMPLEX_MIDPOINT 5
 
 class MassSpringSystemSimulator:public Simulator{
 public:
@@ -38,6 +42,8 @@ public:
 	void applyExternalForce(Vec3 force);
 
 	void updateLength(int index);
+
+	Vec3 calcAccel(Vec3 Pos, Vec3 otherPos, float currentLength, float initialLength);
 	
 	// Do Not Change
 	void setIntegrator(int integrator) {

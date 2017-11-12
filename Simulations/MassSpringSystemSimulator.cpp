@@ -4,12 +4,13 @@ MassSpringSystemSimulator::MassSpringSystemSimulator(){
 	//TODO:
 	
 	setIntegrator(0); //euler is the default integrator
+	setMass(10.0f);
 }
 
 // UI Functions
 const char * MassSpringSystemSimulator::getTestCasesStr(){
 	//Only Dummyimplementation
-	return "EULER, LEAPFROG, MIDPOINT";
+	return "EULER, LEAPFROG, MIDPOINT, DEMO_ONE, COMPLEX_EULER, COMPLEX_MIDPOINT";
 }
 
 void MassSpringSystemSimulator::initUI(DrawingUtilitiesClass * DUC){
@@ -90,6 +91,12 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase){
 		addSpring(0, 1, 1);
 		setStiffness(40);
 		break;
+
+	case 3:
+		points.clear();
+		springs.clear();
+		cout << "Demo one: Calculating single step with euler and midpoint, output follows on console:\n";
+
 	}
 }
 
@@ -106,8 +113,8 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep) {
 			force = -1.0f * m_fStiffness*(springs[0].currentLength - springs[0].initialLength)*
 				(points[i].Pos - points[(i + 1) % m_numSpheres].Pos) / springs[0].currentLength;
 			accel = force / points[i].mass;
-			points[i].Vel += accel * timeStep;
 			points[i].Pos += points[i].Vel * timeStep;
+			points[i].Vel += accel * timeStep;
 		}
 			 //update spring points
 			 //springs[0].point1 = points[0].Pos;
@@ -180,7 +187,7 @@ int MassSpringSystemSimulator::addMassPoint(Vec3 position, Vec3 Velocity, bool i
 	tmp.isFixed = isFixed;
 	tmp.Pos = position;
 	tmp.Vel = Velocity;
-	tmp.mass = 10.0f;
+	tmp.mass = m_fMass;
 	points.push_back(tmp);
 	cout << "Added a point to the list!\n";
 	return 0;
@@ -224,3 +231,13 @@ void MassSpringSystemSimulator::updateLength(int index) {
 	Vec3 b = *springs[index].point2;
 	springs[index].currentLength = sqrt(a.squaredDistanceTo(b));
 }
+//returns acceleration for a mass point
+Vec3 MassSpringSystemSimulator::calcAccel(Vec3 Pos,
+	Vec3 otherPos, float currentLength, float initialLength)
+{
+	Vec3 force = -1.0f * (currentLength - initialLength) * (Pos - otherPos) / currentLength;
+	return force / m_fMass;
+}
+//calculates a single euler step
+
+//calculates a single midpoint step
