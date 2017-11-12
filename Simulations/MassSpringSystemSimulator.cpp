@@ -99,6 +99,10 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase){
 		springs.clear();
 		cout << "Demo one: Calculating single step with euler and midpoint, output follows on console:\n";
 
+	case 4:
+		points.clear();
+		springs.clear();
+		cout << "Complex Demo with euler integration\n";
 	}
 }
 
@@ -126,7 +130,7 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep) {
 			 updateLength(0);
 			 */
 		eulerStep(timeStep);
-			 break;
+		break;
 	case(1) :
 		//leap frog
 		break;
@@ -157,17 +161,17 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep) {
 			updateLength(0);
 			*/
 		midPointStep(timeStep);
-			break;
+		break;
 	}
 	//placeholder for other implementors
 
 	//Collisions
 	int counter = 1;
-	for each (massPoint m1 in points){
-		for (int i = counter; i < points.size(); i++){
+	for each (massPoint m1 in points) {
+		for (int i = counter; i < points.size(); i++) {
 			massPoint m2 = points[i];
 			//If two spheres collide
-			if (sqrt(pow(m1.Pos.x - m2.Pos.x, 2) + pow(m1.Pos.y - m2.Pos.y, 2) + pow(m1.Pos.z - m2.Pos.z, 2)) <= m_sphereSize){
+			if (sqrt(pow(m1.Pos.x - m2.Pos.x, 2) + pow(m1.Pos.y - m2.Pos.y, 2) + pow(m1.Pos.z - m2.Pos.z, 2)) <= m_sphereSize) {
 				//m1.Vel = (m2.mass / m1.mass)*-(DirectX::XMVector3Dot(m1.Vel.toDirectXVector, (m1.Pos - m2.Pos).toDirectXVector));
 				//m2.Vel = (m1.mass / m2.mass)*-(DirectX::XMVector3Dot(m2.Vel.toDirectXVector, (m2.Pos - m1.Pos).toDirectXVector));
 			}
@@ -255,7 +259,7 @@ void MassSpringSystemSimulator::updateLength(int index) {
 Vec3 MassSpringSystemSimulator::calcAccel(Vec3 Pos,
 	Vec3 otherPos, float currentLength, float initialLength)
 {
-	Vec3 force = -1.0f * (currentLength - initialLength) * (Pos - otherPos) / currentLength;
+	Vec3 force = -1.0f * m_fStiffness * (currentLength - initialLength) * (Pos - otherPos) / currentLength;
 	return force / m_fMass;
 }
 //calculates a single euler step
