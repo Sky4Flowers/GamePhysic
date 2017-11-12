@@ -151,9 +151,21 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep) {
 			updateLength(0);
 			break;
 	}
-
 	//placeholder for other implementors
 
+	//Collisions
+	int counter = 1;
+	for each (massPoint m1 in points){
+		for (int i = counter; i < points.size(); i++){
+			massPoint m2 = points[i];
+			//If two spheres collide
+			if (sqrt(pow(m1.Pos.x - m2.Pos.x, 2) + pow(m1.Pos.y - m2.Pos.y, 2) + pow(m1.Pos.z - m2.Pos.z, 2)) <= m_sphereSize){
+				//m1.Vel = (m2.mass / m1.mass)*-(DirectX::XMVector3Dot(m1.Vel.toDirectXVector, (m1.Pos - m2.Pos).toDirectXVector));
+				//m2.Vel = (m1.mass / m2.mass)*-(DirectX::XMVector3Dot(m2.Vel.toDirectXVector, (m2.Pos - m1.Pos).toDirectXVector));
+			}
+		}
+		counter++;
+	}
 }
 
 void MassSpringSystemSimulator::onClick(int x, int y){
@@ -206,8 +218,7 @@ void MassSpringSystemSimulator::addSpring(int masspoint1, int masspoint2, float 
 }
 
 int MassSpringSystemSimulator::getNumberOfMassPoints(){
-	return m_numSpheres;
-}
+	return m_numSpheres;}
 
 int MassSpringSystemSimulator::getNumberOfSprings(){
 	return springs.size();
