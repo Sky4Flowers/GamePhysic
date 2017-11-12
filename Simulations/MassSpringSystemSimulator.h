@@ -44,6 +44,11 @@ public:
 	void updateLength(int index);
 
 	Vec3 calcAccel(Vec3 Pos, Vec3 otherPos, float currentLength, float initialLength);
+
+	void eulerStep(float timeStep);
+
+	void midPointStep(float timeStep);
+
 	
 	// Do Not Change
 	void setIntegrator(int integrator) {
@@ -77,8 +82,8 @@ private:
 
 	//struct for springs
 	struct spring {
-		Vec3 *point1;
-		Vec3 *point2;
+		massPoint *point1;
+		massPoint *point2;
 		float initialLength;
 		float currentLength;
 		//missing stiffness -> is a field in MassSpringSystemSim
