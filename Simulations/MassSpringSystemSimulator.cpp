@@ -20,6 +20,7 @@ void MassSpringSystemSimulator::initUI(DrawingUtilitiesClass * DUC){
 	this->DUC = DUC;
 	TwAddVarRW(DUC->g_pTweakBar, "Num Spheres", TW_TYPE_INT32, &m_numSpheres, "min=1");
 	TwAddVarRW(DUC->g_pTweakBar, "Sphere Size", TW_TYPE_FLOAT, &m_sphereSize, "min=0.01 step=0.01");
+	TwAddVarRW(DUC->g_pTweakBar, "Ext. Force Intensity", TW_TYPE_FLOAT, &intensity, "min=0.0 step=0.1");
 }
 
 void MassSpringSystemSimulator::reset(){
