@@ -68,6 +68,7 @@ private:
 	int m_numSpheres;
 	float m_sphereSize;
 	float m_coordinateScaleFactor = 0.5f;
+	float m_gravity=-9.81f;
 	//used to scale the system to the box in the simulator, hard coded to 1/4
 	float fitToBoxCoef;
 	//used to store temporary force and acceleration

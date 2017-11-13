@@ -124,7 +124,11 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase){
 }
 
 void MassSpringSystemSimulator::externalForcesCalculations(float timeElapsed){
-	
+	//gravity
+	for (int i = 0; i < points.size(); i++) {
+		points[i].Vel.y += m_gravity * timeElapsed;
+	}
+	detectCollisions();
 }
 
 void MassSpringSystemSimulator::simulateTimestep(float timeStep) {
@@ -392,23 +396,29 @@ void MassSpringSystemSimulator::detectCollisions(){
 		//Floorcollision
 		if (points[i].Pos.y - m_sphereSize <= -0.5f){
 			points[i].Pos.y = -0.5f + m_sphereSize;
+			points[i].Vel.y = 0;
 			//With bouncing
 			//NTH: DotProduct of m1.vel at Vec3(0,1,0)
 		}
 		else if (points[i].Pos.y + m_sphereSize >= 0.5f){
 			points[i].Pos.y = 0.5f - m_sphereSize;
+			points[i].Vel.y = 0;
 		}
-		if (points[i].Pos.x - m_sphereSize <= -0.5f){
-			points[i].Pos.x = m_sphereSize - 0.5f;
+		if (points[i].Pos.x - m_sphereSize <= -2){
+			points[i].Pos.x = m_sphereSize - 2;
+			points[i].Vel.x = 0;
 		}
-		else if (points[i].Pos.x + m_sphereSize >= 0.5f){
-			points[i].Pos.x = -m_sphereSize + 0.5f;
+		else if (points[i].Pos.x + m_sphereSize >= 2){
+			points[i].Pos.x = -m_sphereSize + 2;
+			points[i].Vel.x = 0;
 		}
-		if (points[i].Pos.z - m_sphereSize <= -0.5f){
-			points[i].Pos.z = m_sphereSize - 0.5f;
+		if (points[i].Pos.z - m_sphereSize <= -2){
+			points[i].Pos.z = m_sphereSize - 2;
+			points[i].Vel.z = 0;
 		}
-		else if (points[i].Pos.z + m_sphereSize >= 0.5f){
-			points[i].Pos.z = -m_sphereSize + 0.5f;
+		else if (points[i].Pos.z + m_sphereSize >= 2){
+			points[i].Pos.z = -m_sphereSize + 2;
+			points[i].Vel.z = 0;
 		}
 		//Collision with obstacles
 		//for each(obstacle o in obstacles){}
