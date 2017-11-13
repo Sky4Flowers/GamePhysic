@@ -410,7 +410,7 @@ void MassSpringSystemSimulator::setupComplexScene()
 	//set field values
 	m_numSpheres = 20;
 	m_sphereSize = 0.05f;
-	m_gravity = -9.01f;
+	m_gravity = 0.0f;
 	//fitToBoxCoef = 0.25f;
 
 	//add mass points
