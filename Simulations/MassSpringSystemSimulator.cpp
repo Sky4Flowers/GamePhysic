@@ -39,16 +39,17 @@ void MassSpringSystemSimulator::drawFrame(ID3D11DeviceContext* pd3dImmediateCont
 	std::uniform_real_distribution<float> randPos(-0.5f, 0.5f);
 	DUC->setUpLighting(Vec3(0,1,0), 0.4*Vec3(0, 0, 0), 100, 0.6*Vec3(1,1,1));
 	//For more Spheres
-	for (int i = 0; i<m_numSpheres; i++)
+	for (int i = 0; i<points.size(); i++)
 	{
 		DUC->drawSphere(points[i].Pos, Vec3(m_sphereSize, m_sphereSize, m_sphereSize));
-	}	
-		//begin line
-		DUC->beginLine();
-		//DUC->drawLine(Vec3(0, 0, 0), Vec3(1, 1, 1), Vec3(0, 2, 0), Vec3(0, 0, 1));
-		for (int i = 0; i < springs.size(); i++) 
-			DUC->drawLine(springs[0].point1->Pos, Vec3(1, 1, 1), springs[0].point2->Pos, Vec3(1, 1, 1));
-		DUC->endLine();
+	}
+	//draw lines
+	DUC->beginLine();
+	for (int i = 0; i < springs.size(); i++) 
+	{
+		DUC->drawLine(springs[i].point1->Pos, Vec3(1, 1, 1), springs[i].point2->Pos, Vec3(1, 1, 1));
+	}
+	DUC->endLine();
 
 }
 
@@ -96,14 +97,58 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase){
 		break;
 
 	case 3:
+		//count notifies if step has taken place
+		count = 0;
 		points.clear();
 		springs.clear();
 		cout << "Demo one: Calculating single step with euler and midpoint, output follows on console:\n";
+		//get points etc.
+		m_numSpheres = 2;
+		m_sphereSize = 0.05f;
+		addMassPoint(Vec3(0, 0, 0), Vec3(-1, 0, 0), false);
+		addMassPoint(Vec3(0, 2, 0), Vec3(1, 0, 0), false);
+		addSpring(0, 1, 1);
+		setStiffness(40);
 
+		break;
 	case 4:
 		points.clear();
 		springs.clear();
 		cout << "Complex Demo with euler integration\n";
+		
+		//set field values
+		m_numSpheres = 4;
+		m_sphereSize = 0.05f;
+		//fitToBoxCoef = 0.25f;
+
+		//add mass points
+		addMassPoint(Vec3(0, 0, 0), Vec3(-1, 0, 0), false);
+		addMassPoint(Vec3(0, 2, 0), Vec3(1, 0, 0), false);
+		//add a spring between the 2 mass points
+		
+
+		//cout << "First spring positions:"<<springs[0].point1->Pos << "," << springs[0].point2->Pos << "\n";
+
+		addMassPoint(Vec3(0, 0, 1), Vec3(1, 0, 0), false);
+		addMassPoint(Vec3(0, 2, 1), Vec3(-1, 0, 0), false);
+		addSpring(0, 1, 1);
+		//test
+		addSpring(1, 2, 0.1f);
+		addSpring(2, 3, 1);
+		
+		
+		//debug
+		//cout << "First spring positions:" << springs[0].point1->Pos << "," << springs[0].point2->Pos << "\n";
+
+		setStiffness(40);
+
+		break;
+
+	case 5:
+		points.clear();
+		springs.clear();
+		cout << "Complex Demo with midpoint integration\n";
+		break;
 	}
 }
 
@@ -197,7 +242,45 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep) {
 			*/
 		midPointStep(timeStep);
 		break;
+	case(4) :
+		eulerStep(timeStep);
+		break;
+		//demo 1 case 
+	case (3):
+	{
+		cout << "Single Euler Step:\n";
+		if (count == 0) {
+			eulerStep(timeStep);
+			for (int i = 0; i < points.size(); i++) {
+				cout << "Point # :"<< i << "\n";
+				cout << "Position (x,y,z): (" << points[i].Pos.x << "," << points[i].Pos.y << "," << points[i].Pos.z << ")\n";
+				cout << "Velocity (x,y,z): (" << points[i].Vel.x << "," << points[i].Vel.y << "," << points[i].Vel.z << ")\n";
+			}count++;
+		}
+		if (count == 1) {
+			//when value of first has changed remove all and draw midpoint
+			springs.clear();
+			points.clear();
+			notifyCaseChanged(2);
+			cout << "Single Midpoint:\n";
+			midPointStep(timeStep);
+			for (int i = 0; i < points.size(); i++) {
+				cout << "Point # :" << i << "\n";
+				cout << "Position (x,y,z): ("<< points[i].Pos.x <<","<< points[i].Pos.y<<","<<points[i].Pos.z<<")\n";
+				cout << "Velocity (x,y,z): ("<< points[i].Vel.x <<","<< points[i].Vel.y<<","<<points[i].Vel.z<<")\n";
+			}count++;
+			if(count ==2){
+				//springs.clear();
+				//points.clear();
+			}
+			else {
+			cout: "case 3 doesn't work somehow...";
+			}
+		}//system("pause");
+		break;
 	}
+	};
+
 	//placeholder for other implementors
 
 	externalForcesCalculations(timeStep);}
@@ -248,7 +331,8 @@ void MassSpringSystemSimulator::addSpring(int masspoint1, int masspoint2, float 
 	Vec3 b = tmp.point2->Pos;
 	tmp.currentLength = sqrt(a.squaredDistanceTo(b));
 	springs.push_back(tmp);
-	cout << "Added a spring! it's currentLength is: " << tmp.currentLength << "\n";
+	cout << "Added a spring! it's currentLength is: " << tmp.currentLength << "\n Positions: "
+		<< tmp.point1->Pos <<","<<tmp.point2->Pos<<"\n";
 }
 
 int MassSpringSystemSimulator::getNumberOfMassPoints(){
@@ -287,7 +371,7 @@ Vec3 MassSpringSystemSimulator::calcAccel(Vec3 Pos,
 //calculates a single euler step
 void MassSpringSystemSimulator::eulerStep(float timeStep) 
 {
-	for (int i = 0; i < springs.size(); i++) 
+	for (int i = 0; i < springs.size(); i++)
 	{
 		massPoint *a = springs[i].point1;
 		massPoint *b = springs[i].point2;
