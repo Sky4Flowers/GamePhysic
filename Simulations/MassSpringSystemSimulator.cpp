@@ -49,6 +49,7 @@ void MassSpringSystemSimulator::drawFrame(ID3D11DeviceContext* pd3dImmediateCont
 		for (int i = 0; i < springs.size(); i++) 
 			DUC->drawLine(springs[0].point1->Pos, Vec3(1, 1, 1), springs[0].point2->Pos, Vec3(1, 1, 1));
 		DUC->endLine();
+
 }
 
 void MassSpringSystemSimulator::notifyCaseChanged(int testCase){
@@ -103,7 +104,41 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase){
 }
 
 void MassSpringSystemSimulator::externalForcesCalculations(float timeElapsed){
-
+	//Collisions
+	int counter = 1;
+	for each (massPoint m1 in points){
+		//Floorcollision
+		if (m1.Pos.y-m_sphereSize <= -1){
+			m1.Pos.y = -1+m_sphereSize;
+			//With bouncing
+			//NTH: DotProduct of m1.vel at Vec3(0,1,0)
+		}
+		if (m1.Pos.x - m_sphereSize <= -3){
+			m1.Pos.x = m_sphereSize - 3;
+		}
+		else if (m1.Pos.x + m_sphereSize >= 3){
+			m1.Pos.x = m_sphereSize + 3;
+		}
+		if (m1.Pos.z - m_sphereSize <= -3){
+			m1.Pos.z = m_sphereSize - 3;
+		}
+		else if (m1.Pos.z + m_sphereSize >= 3){
+			m1.Pos.z = m_sphereSize + 3;
+		}
+		//Collision with obstacles
+		//for each(obstacle o in obstacles){}
+		//Collision of moving spheres
+		//for (int i = counter; i < points.size(); i++){
+			//massPoint m2 = points[i];
+			
+			//If two spheres collide
+			//if (sqrt(pow(m1.Pos.x - m2.Pos.x, 2) + pow(m1.Pos.y - m2.Pos.y, 2) + pow(m1.Pos.z - m2.Pos.z, 2)) <= m_sphereSize){
+				//m1.Vel = (m2.mass / m1.mass)*-(DirectX::XMVector3Dot(m1.Vel.toDirectXVector, (m1.Pos - m2.Pos).toDirectXVector));
+				//m2.Vel = (m1.mass / m2.mass)*-(DirectX::XMVector3Dot(m2.Vel.toDirectXVector, (m2.Pos - m1.Pos).toDirectXVector));
+			//}
+		//}
+		//counter++;
+	}
 }
 
 void MassSpringSystemSimulator::simulateTimestep(float timeStep) {
@@ -161,19 +196,7 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep) {
 	}
 	//placeholder for other implementors
 
-	//Collisions
-	int counter = 1;
-	for each (massPoint m1 in points){
-		for (int i = counter; i < points.size(); i++){
-			massPoint m2 = points[i];
-			//If two spheres collide
-			if (sqrt(pow(m1.Pos.x - m2.Pos.x, 2) + pow(m1.Pos.y - m2.Pos.y, 2) + pow(m1.Pos.z - m2.Pos.z, 2)) <= m_sphereSize){
-				//m1.Vel = (m2.mass / m1.mass)*-(DirectX::XMVector3Dot(m1.Vel.toDirectXVector, (m1.Pos - m2.Pos).toDirectXVector));
-				//m2.Vel = (m1.mass / m2.mass)*-(DirectX::XMVector3Dot(m2.Vel.toDirectXVector, (m2.Pos - m1.Pos).toDirectXVector));
-			}
-		}
-		counter++;
-	}
+	externalForcesCalculations(timeStep);
 }
 
 void MassSpringSystemSimulator::onClick(int x, int y){
