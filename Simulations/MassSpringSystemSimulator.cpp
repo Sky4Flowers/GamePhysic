@@ -100,6 +100,10 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase){
 		springs.clear();
 		cout << "Demo one: Calculating single step with euler and midpoint, output follows on console:\n";
 
+	case 4:
+		points.clear();
+		springs.clear();
+		cout << "Complex Demo with euler integration\n";
 	}
 }
 
@@ -161,7 +165,7 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep) {
 			 updateLength(0);
 			 */
 		eulerStep(timeStep);
-			 break;
+		break;
 	case(1) :
 		//leap frog
 		break;
@@ -192,12 +196,11 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep) {
 			updateLength(0);
 			*/
 		midPointStep(timeStep);
-			break;
+		break;
 	}
 	//placeholder for other implementors
 
-	externalForcesCalculations(timeStep);
-}
+	externalForcesCalculations(timeStep);}
 
 void MassSpringSystemSimulator::onClick(int x, int y){
 	m_trackmouse.x = x;
@@ -278,7 +281,7 @@ void MassSpringSystemSimulator::updateLength(int index) {
 Vec3 MassSpringSystemSimulator::calcAccel(Vec3 Pos,
 	Vec3 otherPos, float currentLength, float initialLength)
 {
-	Vec3 force = -1.0f * (currentLength - initialLength) * (Pos - otherPos) / currentLength;
+	Vec3 force = -1.0f * m_fStiffness * (currentLength - initialLength) * (Pos - otherPos) / currentLength;
 	return force / m_fMass;
 }
 //calculates a single euler step
