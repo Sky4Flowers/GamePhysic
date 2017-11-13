@@ -114,36 +114,7 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase){
 
 		break;
 	case 4:
-		points.clear();
-		springs.clear();
-		cout << "Complex Demo with euler integration\n";
-		
-		//set field values
-		m_numSpheres = 4;
-		m_sphereSize = 0.05f;
-		//fitToBoxCoef = 0.25f;
-
-		//add mass points
-		addMassPoint(Vec3(0, 0, 0), Vec3(-1, 0, 0), false);
-		addMassPoint(Vec3(0, 2, 0), Vec3(1, 0, 0), false);
-		//add a spring between the 2 mass points
-		
-
-		//cout << "First spring positions:"<<springs[0].point1->Pos << "," << springs[0].point2->Pos << "\n";
-
-		addMassPoint(Vec3(0, 0, 1), Vec3(1, 0, 0), false);
-		addMassPoint(Vec3(0, 2, 1), Vec3(-1, 0, 0), false);
-		addSpring(0, 1, 1);
-		//test
-		addSpring(1, 2, 0.1f);
-		addSpring(2, 3, 1);
-		
-		
-		//debug
-		//cout << "First spring positions:" << springs[0].point1->Pos << "," << springs[0].point2->Pos << "\n";
-
-		setStiffness(40);
-
+		setupComplexScene();
 		break;
 
 	case 5:
@@ -155,48 +126,14 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase){
 }
 
 void MassSpringSystemSimulator::externalForcesCalculations(float timeElapsed){
-	//Collisions
-	int counter = 1;
-	for each (massPoint m1 in points){
-		//Floorcollision
-		if (m1.Pos.y-m_sphereSize <= -1){
-			m1.Pos.y = -1+m_sphereSize;
-			//With bouncing
-			//NTH: DotProduct of m1.vel at Vec3(0,1,0)
-		}
-		if (m1.Pos.x - m_sphereSize <= -3){
-			m1.Pos.x = m_sphereSize - 3;
-		}
-		else if (m1.Pos.x + m_sphereSize >= 3){
-			m1.Pos.x = m_sphereSize + 3;
-		}
-		if (m1.Pos.z - m_sphereSize <= -3){
-			m1.Pos.z = m_sphereSize - 3;
-		}
-		else if (m1.Pos.z + m_sphereSize >= 3){
-			m1.Pos.z = m_sphereSize + 3;
-		}
-		//Collision with obstacles
-		//for each(obstacle o in obstacles){}
-		//Collision of moving spheres
-		//for (int i = counter; i < points.size(); i++){
-			//massPoint m2 = points[i];
-			
-			//If two spheres collide
-			//if (sqrt(pow(m1.Pos.x - m2.Pos.x, 2) + pow(m1.Pos.y - m2.Pos.y, 2) + pow(m1.Pos.z - m2.Pos.z, 2)) <= m_sphereSize){
-				//m1.Vel = (m2.mass / m1.mass)*-(DirectX::XMVector3Dot(m1.Vel.toDirectXVector, (m1.Pos - m2.Pos).toDirectXVector));
-				//m2.Vel = (m1.mass / m2.mass)*-(DirectX::XMVector3Dot(m2.Vel.toDirectXVector, (m2.Pos - m1.Pos).toDirectXVector));
-			//}
-		//}
-		//counter++;
-	}
+	
 }
 
 void MassSpringSystemSimulator::simulateTimestep(float timeStep) {
 	//euler
 	switch (m_iIntegrator)
 	{
-	case (0):
+	case (0) :
 		/*
 		for (int i = 0; i < m_numSpheres; i++) {
 			force = -1.0f * m_fStiffness*(springs[0].currentLength - springs[0].initialLength)*
@@ -213,10 +150,10 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep) {
 			 */
 		eulerStep(timeStep);
 		break;
-	case(1):
+	case(1) :
 		//leap frog
 		break;
-	case(2):
+	case(2) :
 		//midpoint a la VL
 		/*
 		for (int i = 0; i < m_numSpheres; i++)
@@ -285,7 +222,7 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep) {
 
 	//placeholder for other implementors
 
-	externalForcesCalculations(timeStep);}
+}
 
 void MassSpringSystemSimulator::onClick(int x, int y) {
 	//happens while you click
@@ -337,11 +274,11 @@ void MassSpringSystemSimulator::setDampingFactor(float damping){
 int MassSpringSystemSimulator::addMassPoint(Vec3 position, Vec3 Velocity, bool isFixed){
 	massPoint tmp;
 	tmp.isFixed = isFixed;
-	tmp.Pos = position;
-	tmp.Vel = Velocity;
+	tmp.Pos = position * m_coordinateScaleFactor;
+	tmp.Vel = Velocity * m_coordinateScaleFactor;
 	tmp.mass = m_fMass;
 	points.push_back(tmp);
-	cout << "Added a point to the list!\n";
+	cout << "Added a point to the list! Position: "<< tmp.Pos<<".\n";
 	return 0;
 }
 
@@ -349,13 +286,11 @@ void MassSpringSystemSimulator::addSpring(int masspoint1, int masspoint2, float 
 	spring tmp;
 	tmp.point1 = &points[masspoint1]; //&points[masspoint1].Pos;
 	tmp.point2 = &points[masspoint2];
-	tmp.initialLength = initialLength;
+	tmp.initialLength = initialLength * m_coordinateScaleFactor;
 	Vec3 a = tmp.point1->Pos;
 	Vec3 b = tmp.point2->Pos;
 	tmp.currentLength = sqrt(a.squaredDistanceTo(b));
 	springs.push_back(tmp);
-	cout << "Added a spring! it's currentLength is: " << tmp.currentLength << "\n Positions: "
-		<< tmp.point1->Pos <<","<<tmp.point2->Pos<<"\n";
 }
 
 int MassSpringSystemSimulator::getNumberOfMassPoints(){
@@ -451,3 +386,85 @@ void MassSpringSystemSimulator::midPointStep(float timeStep)
 	} 
 }
 //creates vector of mouse drag and manipulates spheres and springs
+}
+
+void MassSpringSystemSimulator::setupComplexScene()
+{
+	points.clear();
+	springs.clear();
+	cout << "Complex Demo with euler integration\n";
+
+	//set field values
+	m_numSpheres = 20;
+	m_sphereSize = 0.05f;
+	//fitToBoxCoef = 0.25f;
+
+	//add mass points
+	for (int i = 0; i < m_numSpheres; i++) 
+	{
+		Vec3 vel = Vec3(pow(-1.0f, i), 0, 0);
+		if (i % 4 > 1)
+			vel *= -1.0f;
+		cout << "Velocity is: " << vel << ".\n";
+		addMassPoint(Vec3(0, 1 + pow((-1), i), i - 1*(i%2)), vel, false);
+	}
+	//addMassPoint(Vec3(0, 0, 0), Vec3(-1, 0, 0), false);
+	//addMassPoint(Vec3(0, 2, 0), Vec3(1, 0, 0), false);
+	//addMassPoint(Vec3(0, 0, 1), Vec3(1, 0, 0), false);
+	//addMassPoint(Vec3(0, 2, 1), Vec3(-1, 0, 0), false);
+	//add springs
+	
+	for (int i = 0; i < points.size()/2; i++) 
+	{
+		float length = 1;
+		if(i%4 > 1)
+			length += -0.5f;
+		addSpring(i * 2, i * 2 + 1, length);
+	}
+	//addSpring(0, 1, 1);
+	//test
+	//addSpring(1, 2, 0.1f);
+	//addSpring(2, 3, 1);
+
+	setStiffness(40);
+}
+void MassSpringSystemSimulator::detectCollisions(){
+	//Collisions
+	int counter = 1;
+	for (int i = 0; i < m_numSpheres; i++) {
+		//Floorcollision
+		if (points[i].Pos.y - m_sphereSize <= -0.5f){
+			points[i].Pos.y = -0.5f + m_sphereSize;
+			//With bouncing
+			//NTH: DotProduct of m1.vel at Vec3(0,1,0)
+		}
+		else if (points[i].Pos.y + m_sphereSize >= 0.5f){
+			points[i].Pos.y = 0.5f - m_sphereSize;
+		}
+		if (points[i].Pos.x - m_sphereSize <= -0.5f){
+			points[i].Pos.x = m_sphereSize - 0.5f;
+		}
+		else if (points[i].Pos.x + m_sphereSize >= 0.5f){
+			points[i].Pos.x = -m_sphereSize + 0.5f;
+		}
+		if (points[i].Pos.z - m_sphereSize <= -0.5f){
+			points[i].Pos.z = m_sphereSize - 0.5f;
+		}
+		else if (points[i].Pos.z + m_sphereSize >= 0.5f){
+			points[i].Pos.z = -m_sphereSize + 0.5f;
+		}
+		//Collision with obstacles
+		//for each(obstacle o in obstacles){}
+		//Collision of moving spheres
+		//for (int i = counter; i < points.size(); i++){
+		//massPoint m2 = points[i];
+
+		//If two spheres collide
+		//if (sqrt(pow(m1.Pos.x - m2.Pos.x, 2) + pow(m1.Pos.y - m2.Pos.y, 2) + pow(m1.Pos.z - m2.Pos.z, 2)) <= m_sphereSize){
+		//m1.Vel = (m2.mass / m1.mass)*-(DirectX::XMVector3Dot(m1.Vel.toDirectXVector, (m1.Pos - m2.Pos).toDirectXVector));
+		//m2.Vel = (m1.mass / m2.mass)*-(DirectX::XMVector3Dot(m2.Vel.toDirectXVector, (m2.Pos - m1.Pos).toDirectXVector));
+		//}
+		//}
+		//counter++;
+	}
+}
