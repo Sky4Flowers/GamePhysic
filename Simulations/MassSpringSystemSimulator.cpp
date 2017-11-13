@@ -386,7 +386,6 @@ void MassSpringSystemSimulator::midPointStep(float timeStep)
 	} 
 }
 //creates vector of mouse drag and manipulates spheres and springs
-}
 
 void MassSpringSystemSimulator::setupComplexScene()
 {
