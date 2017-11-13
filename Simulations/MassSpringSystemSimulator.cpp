@@ -39,11 +39,17 @@ void MassSpringSystemSimulator::drawFrame(ID3D11DeviceContext* pd3dImmediateCont
 	std::uniform_real_distribution<float> randPos(-0.5f, 0.5f);
 	DUC->setUpLighting(Vec3(0,1,0), 0.4*Vec3(0, 0, 0), 100, 0.6*Vec3(1,1,1));
 	//For more Spheres
-	for (int i = 0; i<m_numSpheres; i++)
+	for (int i = 0; i<points.size(); i++)
 	{
 		DUC->drawSphere(points[i].Pos, Vec3(m_sphereSize, m_sphereSize, m_sphereSize));
-	}	
-
+	}
+	//draw lines
+	DUC->beginLine();
+	for (int i = 0; i < springs.size(); i++) 
+	{
+		DUC->drawLine(springs[i].point1->Pos, Vec3(1, 1, 1), springs[i].point2->Pos, Vec3(1, 1, 1));
+	}
+	DUC->endLine();
 
 }
 
