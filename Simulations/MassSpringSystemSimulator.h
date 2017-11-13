@@ -68,6 +68,7 @@ private:
 	//used to store temporary force and acceleration
 	Vec3 force;
 	Vec3 accel;
+	int count;
 
 	//struct for mass points
 	struct massPoint {

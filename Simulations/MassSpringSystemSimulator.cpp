@@ -95,10 +95,20 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase){
 		break;
 
 	case 3:
+		//count notifies if step has taken place
+		count = 0;
 		points.clear();
 		springs.clear();
 		cout << "Demo one: Calculating single step with euler and midpoint, output follows on console:\n";
+		//get points etc.
+		m_numSpheres = 2;
+		m_sphereSize = 0.05f;
+		addMassPoint(Vec3(0, 0, 0), Vec3(-1, 0, 0), false);
+		addMassPoint(Vec3(0, 2, 0), Vec3(1, 0, 0), false);
+		addSpring(0, 1, 1);
+		setStiffness(40);
 
+		break;
 	}
 }
 
@@ -158,7 +168,42 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep) {
 			*/
 		midPointStep(timeStep);
 			break;
+		//demo 1 case 
+	case (3):
+	{
+		cout << "Single Euler Step:\n";
+		if (count == 0) {
+			eulerStep(timeStep);
+			for (int i = 0; i < points.size(); i++) {
+				cout << "Point # :"<< i << "\n";
+				cout << "Position (x,y,z): (" << points[i].Pos.x << "," << points[i].Pos.y << "," << points[i].Pos.z << ")\n";
+				cout << "Velocity (x,y,z): (" << points[i].Vel.x << "," << points[i].Vel.y << "," << points[i].Vel.z << ")\n";
+			}count++;
+		}
+		if (count == 1) {
+			//when value of first has changed remove all and draw midpoint
+			springs.clear();
+			points.clear();
+			notifyCaseChanged(2);
+			cout << "Single Midpoint:\n";
+			midPointStep(timeStep);
+			for (int i = 0; i < points.size(); i++) {
+				cout << "Point # :" << i << "\n";
+				cout << "Position (x,y,z): ("<< points[i].Pos.x <<","<< points[i].Pos.y<<","<<points[i].Pos.z<<")\n";
+				cout << "Velocity (x,y,z): ("<< points[i].Vel.x <<","<< points[i].Vel.y<<","<<points[i].Vel.z<<")\n";
+			}count++;
+			if(count ==2){
+				//springs.clear();
+				//points.clear();
+			}
+			else {
+			cout: "case 3 doesn't work somehow...";
+			}
+		}//system("pause");
+		break;
 	}
+	};
+
 	//placeholder for other implementors
 
 	//Collisions
