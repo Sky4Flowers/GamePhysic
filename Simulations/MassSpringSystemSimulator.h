@@ -51,6 +51,8 @@ public:
 
 	void setupComplexScene();
 
+	void detectCollisions();
+
 	
 	// Do Not Change
 	void setIntegrator(int integrator) {
@@ -65,6 +67,7 @@ private:
 	int m_iIntegrator;
 	int m_numSpheres;
 	float m_sphereSize;
+	float m_coordinateScaleFactor = 0.5f;
 	//used to scale the system to the box in the simulator, hard coded to 1/4
 	float fitToBoxCoef;
 	//used to store temporary force and acceleration

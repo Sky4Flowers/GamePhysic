@@ -124,41 +124,7 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase){
 }
 
 void MassSpringSystemSimulator::externalForcesCalculations(float timeElapsed){
-	//Collisions
-	int counter = 1;
-	for (int i = 0;i<m_numSpheres;i++) {
-		//Floorcollision
-		if (points[i].Pos.y-m_sphereSize <= -1){
-			points[i].Pos.y = -1+m_sphereSize;
-			//With bouncing
-			//NTH: DotProduct of m1.vel at Vec3(0,1,0)
-		}
-		if (points[i].Pos.x - m_sphereSize <= -1){
-			points[i].Pos.x = m_sphereSize - 1;
-		}
-		else if (points[i].Pos.x + m_sphereSize >= 1){
-			points[i].Pos.x = -m_sphereSize + 1;
-		}
-		if (points[i].Pos.z - m_sphereSize <= -1){
-			points[i].Pos.z = m_sphereSize - 1;
-		}
-		else if (points[i].Pos.z + m_sphereSize >= 1){
-			points[i].Pos.z = -m_sphereSize + 1;
-		}
-		//Collision with obstacles
-		//for each(obstacle o in obstacles){}
-		//Collision of moving spheres
-		//for (int i = counter; i < points.size(); i++){
-			//massPoint m2 = points[i];
-			
-			//If two spheres collide
-			//if (sqrt(pow(m1.Pos.x - m2.Pos.x, 2) + pow(m1.Pos.y - m2.Pos.y, 2) + pow(m1.Pos.z - m2.Pos.z, 2)) <= m_sphereSize){
-				//m1.Vel = (m2.mass / m1.mass)*-(DirectX::XMVector3Dot(m1.Vel.toDirectXVector, (m1.Pos - m2.Pos).toDirectXVector));
-				//m2.Vel = (m1.mass / m2.mass)*-(DirectX::XMVector3Dot(m2.Vel.toDirectXVector, (m2.Pos - m1.Pos).toDirectXVector));
-			//}
-		//}
-		//counter++;
-	}
+	
 }
 
 void MassSpringSystemSimulator::simulateTimestep(float timeStep) {
@@ -254,7 +220,7 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep) {
 
 	//placeholder for other implementors
 
-	externalForcesCalculations(timeStep);}
+}
 
 void MassSpringSystemSimulator::onClick(int x, int y){
 	m_trackmouse.x = x;
@@ -285,8 +251,8 @@ void MassSpringSystemSimulator::setDampingFactor(float damping){
 int MassSpringSystemSimulator::addMassPoint(Vec3 position, Vec3 Velocity, bool isFixed){
 	massPoint tmp;
 	tmp.isFixed = isFixed;
-	tmp.Pos = position;
-	tmp.Vel = Velocity;
+	tmp.Pos = position * m_coordinateScaleFactor;
+	tmp.Vel = Velocity * m_coordinateScaleFactor;
 	tmp.mass = m_fMass;
 	points.push_back(tmp);
 	cout << "Added a point to the list!\n";
@@ -297,7 +263,7 @@ void MassSpringSystemSimulator::addSpring(int masspoint1, int masspoint2, float 
 	spring tmp;
 	tmp.point1 = &points[masspoint1]; //&points[masspoint1].Pos;
 	tmp.point2 = &points[masspoint2];
-	tmp.initialLength = initialLength;
+	tmp.initialLength = initialLength * m_coordinateScaleFactor;
 	Vec3 a = tmp.point1->Pos;
 	Vec3 b = tmp.point2->Pos;
 	tmp.currentLength = sqrt(a.squaredDistanceTo(b));
@@ -418,4 +384,44 @@ void MassSpringSystemSimulator::setupComplexScene()
 	//addSpring(2, 3, 1);
 
 	setStiffness(40);
+}
+void MassSpringSystemSimulator::detectCollisions(){
+	//Collisions
+	int counter = 1;
+	for (int i = 0; i < m_numSpheres; i++) {
+		//Floorcollision
+		if (points[i].Pos.y - m_sphereSize <= -0.5f){
+			points[i].Pos.y = -0.5f + m_sphereSize;
+			//With bouncing
+			//NTH: DotProduct of m1.vel at Vec3(0,1,0)
+		}
+		else if (points[i].Pos.y + m_sphereSize >= 0.5f){
+			points[i].Pos.y = 0.5f - m_sphereSize;
+		}
+		if (points[i].Pos.x - m_sphereSize <= -0.5f){
+			points[i].Pos.x = m_sphereSize - 0.5f;
+		}
+		else if (points[i].Pos.x + m_sphereSize >= 0.5f){
+			points[i].Pos.x = -m_sphereSize + 0.5f;
+		}
+		if (points[i].Pos.z - m_sphereSize <= -0.5f){
+			points[i].Pos.z = m_sphereSize - 0.5f;
+		}
+		else if (points[i].Pos.z + m_sphereSize >= 0.5f){
+			points[i].Pos.z = -m_sphereSize + 0.5f;
+		}
+		//Collision with obstacles
+		//for each(obstacle o in obstacles){}
+		//Collision of moving spheres
+		//for (int i = counter; i < points.size(); i++){
+		//massPoint m2 = points[i];
+
+		//If two spheres collide
+		//if (sqrt(pow(m1.Pos.x - m2.Pos.x, 2) + pow(m1.Pos.y - m2.Pos.y, 2) + pow(m1.Pos.z - m2.Pos.z, 2)) <= m_sphereSize){
+		//m1.Vel = (m2.mass / m1.mass)*-(DirectX::XMVector3Dot(m1.Vel.toDirectXVector, (m1.Pos - m2.Pos).toDirectXVector));
+		//m2.Vel = (m1.mass / m2.mass)*-(DirectX::XMVector3Dot(m2.Vel.toDirectXVector, (m2.Pos - m1.Pos).toDirectXVector));
+		//}
+		//}
+		//counter++;
+	}
 }
