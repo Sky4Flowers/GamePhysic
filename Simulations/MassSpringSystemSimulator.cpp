@@ -5,7 +5,9 @@ MassSpringSystemSimulator::MassSpringSystemSimulator(){
 	
 	setIntegrator(0); //euler is the default integrator
 	setMass(10.0f);
-	
+	isDragged = false;
+	clickRadius = 3.0f;
+	intensity = 10.0f;
 }
 
 // UI Functions
@@ -18,6 +20,7 @@ void MassSpringSystemSimulator::initUI(DrawingUtilitiesClass * DUC){
 	this->DUC = DUC;
 	TwAddVarRW(DUC->g_pTweakBar, "Num Spheres", TW_TYPE_INT32, &m_numSpheres, "min=1");
 	TwAddVarRW(DUC->g_pTweakBar, "Sphere Size", TW_TYPE_FLOAT, &m_sphereSize, "min=0.01 step=0.01");
+	TwAddVarRW(DUC->g_pTweakBar, "Ext. Force Intensity", TW_TYPE_FLOAT, &intensity, "min=0.0 step=0.1");
 }
 
 void MassSpringSystemSimulator::reset(){
@@ -183,7 +186,7 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep) {
 			*/
 		midPointStep(timeStep);
 		break;
-	case(4) :
+	case(4):
 		eulerStep(timeStep);
 		break;
 		//demo 1 case 
@@ -193,7 +196,7 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep) {
 		if (count == 0) {
 			eulerStep(timeStep);
 			for (int i = 0; i < points.size(); i++) {
-				cout << "Point # :"<< i << "\n";
+				cout << "Point # :" << i << "\n";
 				cout << "Position (x,y,z): (" << points[i].Pos.x << "," << points[i].Pos.y << "," << points[i].Pos.z << ")\n";
 				cout << "Velocity (x,y,z): (" << points[i].Vel.x << "," << points[i].Vel.y << "," << points[i].Vel.z << ")\n";
 			}count++;
@@ -207,15 +210,15 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep) {
 			midPointStep(timeStep);
 			for (int i = 0; i < points.size(); i++) {
 				cout << "Point # :" << i << "\n";
-				cout << "Position (x,y,z): ("<< points[i].Pos.x <<","<< points[i].Pos.y<<","<<points[i].Pos.z<<")\n";
-				cout << "Velocity (x,y,z): ("<< points[i].Vel.x <<","<< points[i].Vel.y<<","<<points[i].Vel.z<<")\n";
+				cout << "Position (x,y,z): (" << points[i].Pos.x << "," << points[i].Pos.y << "," << points[i].Pos.z << ")\n";
+				cout << "Velocity (x,y,z): (" << points[i].Vel.x << "," << points[i].Vel.y << "," << points[i].Vel.z << ")\n";
 			}count++;
-			if(count ==2){
+			if (count == 2) {
 				//springs.clear();
 				//points.clear();
 			}
 			else {
-			cout: "case 3 doesn't work somehow...";
+			cout<< "case 3 doesn't work somehow...";
 			}
 		}//system("pause");
 		break;
@@ -226,16 +229,37 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep) {
 
 }
 
-void MassSpringSystemSimulator::onClick(int x, int y){
+void MassSpringSystemSimulator::onClick(int x, int y) {
+	//happens while you click
 	m_trackmouse.x = x;
 	m_trackmouse.y = y;
+	cout << "mouse clicked with pos: " << x << "," << y << "\n";
+	if (!isDragged) {
+		isDragged = true;
+		first = Vec3(x, y, 0);
+		cout << "firstest vec: " << first<< "\n";
+	}
+	//Vec3 newForce = Vec3(x, y, 0);
+	//applyExternalForce(newForce);
 }
 
 void MassSpringSystemSimulator::onMouse(int x, int y){
+	//happens when you move mouse
 	m_oldtrackmouse.x = x;
 	m_oldtrackmouse.y = y;
+	//cout << "done old" << x << "," << y<<"\n";
 	m_trackmouse.x = x;
 	m_trackmouse.y = y;
+	//cout << "done new" << x << "," << y<<"\n";
+	if (isDragged) {
+		//cout << "first vec: " << first.x << "," << first.y;
+		if ((sqrt(first.squaredDistanceTo(Vec3(x, y, 0))) >= clickRadius)) {
+			isDragged = false;
+			newF = Vec3(x, y, 0) - first;
+			cout << "external force: " << newF.x << "," << newF.y<<"\n";
+			applyExternalForce(newF);
+		}
+	}
 }
 
 // Specific Functions
@@ -291,7 +315,7 @@ Vec3 MassSpringSystemSimulator::getVelocityOfMassPoint(int index){
 }
 
 void MassSpringSystemSimulator::applyExternalForce(Vec3 force){
-	//TODO
+
 }
 
 //method updates the currentLength value of a spring, index of the spring in the vector
@@ -324,7 +348,17 @@ void MassSpringSystemSimulator::eulerStep(float timeStep)
 		//update velocity of second point
 		b->Vel += -1.0f * accel * timeStep;
 		updateLength(i);
+	}	
+	if ((newF.x != 0) && (newF.y != 0)) {
+		for (int i = 0; i < points.size(); i++) {
+			Vec3 accel = newF * intensity / m_fMass;
+			//if wrong add pos
+			points[i].Vel += accel*timeStep;
+			points[i].Pos += points[i].Vel *timeStep;
+		}
+		newF = Vec3(0, 0, 0);
 	}
+	
 }
 //calculates a single midpoint step
 void MassSpringSystemSimulator::midPointStep(float timeStep)
@@ -347,7 +381,16 @@ void MassSpringSystemSimulator::midPointStep(float timeStep)
 		b->Vel += timeStep * -1.0f * accel;
 		updateLength(i);
 	}
+	if ((newF.x != 0) && (newF.y != 0)) {
+		for (int i = 0; i < points.size(); i++) {
+			Vec3 accel = newF *intensity / m_fMass;
+			points[i].Vel += accel*timeStep;
+			points[i].Pos += points[i].Vel *timeStep;
+		}
+		newF = Vec3(0, 0, 0);
+	} 
 }
+//creates vector of mouse drag and manipulates spheres and springs
 
 void MassSpringSystemSimulator::setupComplexScene()
 {

@@ -75,6 +75,17 @@ private:
 	Vec3 force;
 	Vec3 accel;
 	int count;
+	//for creating vector from mouse drag
+	float clickRadius;
+	//bool for tracking mouse drag
+	bool isDragged;
+	//saves first vector 
+	Vec3 first;
+	//external force
+	Vec3 newF;
+	//intensity of external force
+	float intensity;
+
 
 	//struct for mass points
 	struct massPoint {
@@ -104,5 +115,8 @@ private:
 	Point2D m_mouse;
 	Point2D m_trackmouse;
 	Point2D m_oldtrackmouse;
+
+	//creates vector for external manipulation
+	Vec3 mouseDrag(float x, float y);
 };
 #endif
