@@ -289,7 +289,7 @@ int MassSpringSystemSimulator::addMassPoint(Vec3 position, Vec3 Velocity, bool i
 	tmp.Vel = Velocity;
 	tmp.mass = m_fMass;
 	points.push_back(tmp);
-	cout << "Added a point to the list!\n";
+	cout << "Added a point to the list! Position: "<< tmp.Pos<<".\n";
 	return 0;
 }
 
@@ -397,7 +397,7 @@ void MassSpringSystemSimulator::setupComplexScene()
 		if (i % 4 > 1)
 			vel *= -1.0f;
 		cout << "Velocity is: " << vel << ".\n";
-		addMassPoint(Vec3(0, 1 + pow((-1), i), i), vel, false);
+		addMassPoint(Vec3(0, 1 + pow((-1), i), i - 1*(i%2)), vel, false);
 	}
 	//addMassPoint(Vec3(0, 0, 0), Vec3(-1, 0, 0), false);
 	//addMassPoint(Vec3(0, 2, 0), Vec3(1, 0, 0), false);
