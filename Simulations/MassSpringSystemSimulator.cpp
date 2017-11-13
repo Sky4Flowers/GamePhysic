@@ -431,6 +431,19 @@ void MassSpringSystemSimulator::setupComplexScene()
 	//addSpring(2, 3, 1);
 
 	setStiffness(40);
+	//Würfel
+	int tmpLength = points.size();
+	for (int i = 0; i < 8; i++){
+		addMassPoint(Vec3(0.1f*(i % 2), 0.1f*(i / 4), 0.1f*((i / 2) % 2)), Vec3(0, 0, 0), false);
+	}
+	int o = 6;
+	for (int i = 0; i < 4; i ++){
+		o -= i;
+		addSpring(tmpLength + o, tmpLength + 1, 1);
+		addSpring(tmpLength + o, tmpLength + 2, 1);
+		addSpring(tmpLength + o, tmpLength + 4, 1);
+		addSpring(tmpLength + o, tmpLength + 7, 1);
+	}
 }
 void MassSpringSystemSimulator::detectCollisions(){
 	//Collisions
