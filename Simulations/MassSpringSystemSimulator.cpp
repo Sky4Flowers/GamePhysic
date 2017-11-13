@@ -43,12 +43,8 @@ void MassSpringSystemSimulator::drawFrame(ID3D11DeviceContext* pd3dImmediateCont
 	{
 		DUC->drawSphere(points[i].Pos, Vec3(m_sphereSize, m_sphereSize, m_sphereSize));
 	}	
-		//begin line
-		DUC->beginLine();
-		//DUC->drawLine(Vec3(0, 0, 0), Vec3(1, 1, 1), Vec3(0, 2, 0), Vec3(0, 0, 1));
-		for (int i = 0; i < springs.size(); i++) 
-			DUC->drawLine(springs[0].point1->Pos, Vec3(1, 1, 1), springs[0].point2->Pos, Vec3(1, 1, 1));
-		DUC->endLine();
+
+
 }
 
 void MassSpringSystemSimulator::notifyCaseChanged(int testCase){
@@ -109,11 +105,83 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase){
 		setStiffness(40);
 
 		break;
+	case 4:
+		points.clear();
+		springs.clear();
+		cout << "Complex Demo with euler integration\n";
+		
+		//set field values
+		m_numSpheres = 4;
+		m_sphereSize = 0.05f;
+		//fitToBoxCoef = 0.25f;
+
+		//add mass points
+		addMassPoint(Vec3(0, 0, 0), Vec3(-1, 0, 0), false);
+		addMassPoint(Vec3(0, 2, 0), Vec3(1, 0, 0), false);
+		//add a spring between the 2 mass points
+		
+
+		//cout << "First spring positions:"<<springs[0].point1->Pos << "," << springs[0].point2->Pos << "\n";
+
+		addMassPoint(Vec3(0, 0, 1), Vec3(1, 0, 0), false);
+		addMassPoint(Vec3(0, 2, 1), Vec3(-1, 0, 0), false);
+		addSpring(0, 1, 1);
+		//test
+		addSpring(1, 2, 0.1f);
+		addSpring(2, 3, 1);
+		
+		
+		//debug
+		//cout << "First spring positions:" << springs[0].point1->Pos << "," << springs[0].point2->Pos << "\n";
+
+		setStiffness(40);
+
+		break;
+
+	case 5:
+		points.clear();
+		springs.clear();
+		cout << "Complex Demo with midpoint integration\n";
+		break;
 	}
 }
 
 void MassSpringSystemSimulator::externalForcesCalculations(float timeElapsed){
-
+	//Collisions
+	int counter = 1;
+	for each (massPoint m1 in points){
+		//Floorcollision
+		if (m1.Pos.y-m_sphereSize <= -1){
+			m1.Pos.y = -1+m_sphereSize;
+			//With bouncing
+			//NTH: DotProduct of m1.vel at Vec3(0,1,0)
+		}
+		if (m1.Pos.x - m_sphereSize <= -3){
+			m1.Pos.x = m_sphereSize - 3;
+		}
+		else if (m1.Pos.x + m_sphereSize >= 3){
+			m1.Pos.x = m_sphereSize + 3;
+		}
+		if (m1.Pos.z - m_sphereSize <= -3){
+			m1.Pos.z = m_sphereSize - 3;
+		}
+		else if (m1.Pos.z + m_sphereSize >= 3){
+			m1.Pos.z = m_sphereSize + 3;
+		}
+		//Collision with obstacles
+		//for each(obstacle o in obstacles){}
+		//Collision of moving spheres
+		//for (int i = counter; i < points.size(); i++){
+			//massPoint m2 = points[i];
+			
+			//If two spheres collide
+			//if (sqrt(pow(m1.Pos.x - m2.Pos.x, 2) + pow(m1.Pos.y - m2.Pos.y, 2) + pow(m1.Pos.z - m2.Pos.z, 2)) <= m_sphereSize){
+				//m1.Vel = (m2.mass / m1.mass)*-(DirectX::XMVector3Dot(m1.Vel.toDirectXVector, (m1.Pos - m2.Pos).toDirectXVector));
+				//m2.Vel = (m1.mass / m2.mass)*-(DirectX::XMVector3Dot(m2.Vel.toDirectXVector, (m2.Pos - m1.Pos).toDirectXVector));
+			//}
+		//}
+		//counter++;
+	}
 }
 
 void MassSpringSystemSimulator::simulateTimestep(float timeStep) {
@@ -136,7 +204,7 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep) {
 			 updateLength(0);
 			 */
 		eulerStep(timeStep);
-			 break;
+		break;
 	case(1) :
 		//leap frog
 		break;
@@ -167,7 +235,10 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep) {
 			updateLength(0);
 			*/
 		midPointStep(timeStep);
-			break;
+		break;
+	case(4) :
+		eulerStep(timeStep);
+		break;
 		//demo 1 case 
 	case (3):
 	{
@@ -206,20 +277,7 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep) {
 
 	//placeholder for other implementors
 
-	//Collisions
-	int counter = 1;
-	for each (massPoint m1 in points){
-		for (int i = counter; i < points.size(); i++){
-			massPoint m2 = points[i];
-			//If two spheres collide
-			if (sqrt(pow(m1.Pos.x - m2.Pos.x, 2) + pow(m1.Pos.y - m2.Pos.y, 2) + pow(m1.Pos.z - m2.Pos.z, 2)) <= m_sphereSize){
-				//m1.Vel = (m2.mass / m1.mass)*-(DirectX::XMVector3Dot(m1.Vel.toDirectXVector, (m1.Pos - m2.Pos).toDirectXVector));
-				//m2.Vel = (m1.mass / m2.mass)*-(DirectX::XMVector3Dot(m2.Vel.toDirectXVector, (m2.Pos - m1.Pos).toDirectXVector));
-			}
-		}
-		counter++;
-	}
-}
+	externalForcesCalculations(timeStep);}
 
 void MassSpringSystemSimulator::onClick(int x, int y){
 	m_trackmouse.x = x;
@@ -267,7 +325,8 @@ void MassSpringSystemSimulator::addSpring(int masspoint1, int masspoint2, float 
 	Vec3 b = tmp.point2->Pos;
 	tmp.currentLength = sqrt(a.squaredDistanceTo(b));
 	springs.push_back(tmp);
-	cout << "Added a spring! it's currentLength is: " << tmp.currentLength << "\n";
+	cout << "Added a spring! it's currentLength is: " << tmp.currentLength << "\n Positions: "
+		<< tmp.point1->Pos <<","<<tmp.point2->Pos<<"\n";
 }
 
 int MassSpringSystemSimulator::getNumberOfMassPoints(){
@@ -300,13 +359,13 @@ void MassSpringSystemSimulator::updateLength(int index) {
 Vec3 MassSpringSystemSimulator::calcAccel(Vec3 Pos,
 	Vec3 otherPos, float currentLength, float initialLength)
 {
-	Vec3 force = -1.0f * (currentLength - initialLength) * (Pos - otherPos) / currentLength;
+	Vec3 force = -1.0f * m_fStiffness * (currentLength - initialLength) * (Pos - otherPos) / currentLength;
 	return force / m_fMass;
 }
 //calculates a single euler step
 void MassSpringSystemSimulator::eulerStep(float timeStep) 
 {
-	for (int i = 0; i < springs.size(); i++) 
+	for (int i = 0; i < springs.size(); i++)
 	{
 		massPoint *a = springs[i].point1;
 		massPoint *b = springs[i].point2;
