@@ -126,24 +126,24 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase){
 void MassSpringSystemSimulator::externalForcesCalculations(float timeElapsed){
 	//Collisions
 	int counter = 1;
-	for each (massPoint m1 in points){
+	for (int i = 0;i<m_numSpheres;i++) {
 		//Floorcollision
-		if (m1.Pos.y-m_sphereSize <= -1){
-			m1.Pos.y = -1+m_sphereSize;
+		if (points[i].Pos.y-m_sphereSize <= -1){
+			points[i].Pos.y = -1+m_sphereSize;
 			//With bouncing
 			//NTH: DotProduct of m1.vel at Vec3(0,1,0)
 		}
-		if (m1.Pos.x - m_sphereSize <= -3){
-			m1.Pos.x = m_sphereSize - 3;
+		if (points[i].Pos.x - m_sphereSize <= -1){
+			points[i].Pos.x = m_sphereSize - 1;
 		}
-		else if (m1.Pos.x + m_sphereSize >= 3){
-			m1.Pos.x = m_sphereSize + 3;
+		else if (points[i].Pos.x + m_sphereSize >= 1){
+			points[i].Pos.x = -m_sphereSize + 1;
 		}
-		if (m1.Pos.z - m_sphereSize <= -3){
-			m1.Pos.z = m_sphereSize - 3;
+		if (points[i].Pos.z - m_sphereSize <= -1){
+			points[i].Pos.z = m_sphereSize - 1;
 		}
-		else if (m1.Pos.z + m_sphereSize >= 3){
-			m1.Pos.z = m_sphereSize + 3;
+		else if (points[i].Pos.z + m_sphereSize >= 1){
+			points[i].Pos.z = -m_sphereSize + 1;
 		}
 		//Collision with obstacles
 		//for each(obstacle o in obstacles){}
