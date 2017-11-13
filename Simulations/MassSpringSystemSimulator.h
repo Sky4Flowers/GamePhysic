@@ -49,6 +49,8 @@ public:
 
 	void midPointStep(float timeStep);
 
+	void setupComplexScene();
+
 	
 	// Do Not Change
 	void setIntegrator(int integrator) {

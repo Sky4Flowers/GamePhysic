@@ -112,36 +112,7 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase){
 
 		break;
 	case 4:
-		points.clear();
-		springs.clear();
-		cout << "Complex Demo with euler integration\n";
-		
-		//set field values
-		m_numSpheres = 4;
-		m_sphereSize = 0.05f;
-		//fitToBoxCoef = 0.25f;
-
-		//add mass points
-		addMassPoint(Vec3(0, 0, 0), Vec3(-1, 0, 0), false);
-		addMassPoint(Vec3(0, 2, 0), Vec3(1, 0, 0), false);
-		//add a spring between the 2 mass points
-		
-
-		//cout << "First spring positions:"<<springs[0].point1->Pos << "," << springs[0].point2->Pos << "\n";
-
-		addMassPoint(Vec3(0, 0, 1), Vec3(1, 0, 0), false);
-		addMassPoint(Vec3(0, 2, 1), Vec3(-1, 0, 0), false);
-		addSpring(0, 1, 1);
-		//test
-		addSpring(1, 2, 0.1f);
-		addSpring(2, 3, 1);
-		
-		
-		//debug
-		//cout << "First spring positions:" << springs[0].point1->Pos << "," << springs[0].point2->Pos << "\n";
-
-		setStiffness(40);
-
+		setupComplexScene();
 		break;
 
 	case 5:
@@ -331,8 +302,6 @@ void MassSpringSystemSimulator::addSpring(int masspoint1, int masspoint2, float 
 	Vec3 b = tmp.point2->Pos;
 	tmp.currentLength = sqrt(a.squaredDistanceTo(b));
 	springs.push_back(tmp);
-	cout << "Added a spring! it's currentLength is: " << tmp.currentLength << "\n Positions: "
-		<< tmp.point1->Pos <<","<<tmp.point2->Pos<<"\n";
 }
 
 int MassSpringSystemSimulator::getNumberOfMassPoints(){
@@ -408,4 +377,45 @@ void MassSpringSystemSimulator::midPointStep(float timeStep)
 		b->Vel += timeStep * -1.0f * accel;
 		updateLength(i);
 	}
+}
+
+void MassSpringSystemSimulator::setupComplexScene()
+{
+	points.clear();
+	springs.clear();
+	cout << "Complex Demo with euler integration\n";
+
+	//set field values
+	m_numSpheres = 20;
+	m_sphereSize = 0.05f;
+	//fitToBoxCoef = 0.25f;
+
+	//add mass points
+	for (int i = 0; i < m_numSpheres; i++) 
+	{
+		Vec3 vel = Vec3(pow(-1.0f, i), 0, 0);
+		if (i % 4 > 1)
+			vel *= -1.0f;
+		cout << "Velocity is: " << vel << ".\n";
+		addMassPoint(Vec3(0, 1 + pow((-1), i), i), vel, false);
+	}
+	//addMassPoint(Vec3(0, 0, 0), Vec3(-1, 0, 0), false);
+	//addMassPoint(Vec3(0, 2, 0), Vec3(1, 0, 0), false);
+	//addMassPoint(Vec3(0, 0, 1), Vec3(1, 0, 0), false);
+	//addMassPoint(Vec3(0, 2, 1), Vec3(-1, 0, 0), false);
+	//add springs
+	
+	for (int i = 0; i < points.size()/2; i++) 
+	{
+		float length = 1;
+		if(i%4 > 1)
+			length += -0.5f;
+		addSpring(i * 2, i * 2 + 1, length);
+	}
+	//addSpring(0, 1, 1);
+	//test
+	//addSpring(1, 2, 0.1f);
+	//addSpring(2, 3, 1);
+
+	setStiffness(40);
 }
