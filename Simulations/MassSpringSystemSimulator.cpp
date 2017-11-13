@@ -21,6 +21,7 @@ void MassSpringSystemSimulator::initUI(DrawingUtilitiesClass * DUC){
 	TwAddVarRW(DUC->g_pTweakBar, "Num Spheres", TW_TYPE_INT32, &m_numSpheres, "min=1");
 	TwAddVarRW(DUC->g_pTweakBar, "Sphere Size", TW_TYPE_FLOAT, &m_sphereSize, "min=0.01 step=0.01");
 	TwAddVarRW(DUC->g_pTweakBar, "Ext. Force Intensity", TW_TYPE_FLOAT, &intensity, "min=0.0 step=0.1");
+	TwAddVarRW(DUC->g_pTweakBar, "Gravity", TW_TYPE_FLOAT, &m_gravity, "min=-20.0 step=0.1");
 }
 
 void MassSpringSystemSimulator::reset(){
@@ -68,6 +69,7 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase){
 		//set field values
 		m_numSpheres = 2;
 		m_sphereSize = 0.05f;
+		m_gravity = 0.0f;
 		//fitToBoxCoef = 0.25f;
 
 		//add mass points
@@ -80,6 +82,7 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase){
 		break;
 	case 1:
 		cout << "Integrator: Leap Frog\n";
+		m_gravity = 0.0f;
 		break;
 	case 2:
 		cout << "Integrator: Midpoint\n";
@@ -88,6 +91,7 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase){
 		//set field values
 		m_numSpheres = 2;
 		m_sphereSize = 0.05f;
+		m_gravity = 0.0f;
 		//fitToBoxCoef = 0.25f;
 
 		//add mass points
@@ -112,15 +116,16 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase){
 		addMassPoint(Vec3(0, 2, 0), Vec3(1, 0, 0), false);
 		addSpring(0, 1, 1);
 		setStiffness(40);
+		m_gravity = 0.0f;
 
 		break;
 	case 4:
 		setupComplexScene();
+		cout << "Complex Demo with Euler integration\n";
 		break;
 
 	case 5:
-		points.clear();
-		springs.clear();
+		setupComplexScene();
 		cout << "Complex Demo with midpoint integration\n";
 		break;
 	}
@@ -221,6 +226,10 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep) {
 			cout<< "case 3 doesn't work somehow...";
 			}
 		}//system("pause");
+		break;
+	}
+	case (5): {
+		midPointStep(timeStep);
 		break;
 	}
 	};
@@ -401,6 +410,7 @@ void MassSpringSystemSimulator::setupComplexScene()
 	//set field values
 	m_numSpheres = 20;
 	m_sphereSize = 0.05f;
+	m_gravity = 0.0f;
 	//fitToBoxCoef = 0.25f;
 
 	//add mass points
@@ -410,7 +420,7 @@ void MassSpringSystemSimulator::setupComplexScene()
 		if (i % 4 > 1)
 			vel *= -1.0f;
 		cout << "Velocity is: " << vel << ".\n";
-		addMassPoint(Vec3(0, 1 + pow((-1), i), i - 1*(i%2)), vel, false);
+		addMassPoint(Vec3(0, 1 + pow((-1), i), (i - 1*(i%2)) * 0.1f), vel, false);
 	}
 	//addMassPoint(Vec3(0, 0, 0), Vec3(-1, 0, 0), false);
 	//addMassPoint(Vec3(0, 2, 0), Vec3(1, 0, 0), false);
