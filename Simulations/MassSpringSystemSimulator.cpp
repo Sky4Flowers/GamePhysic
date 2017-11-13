@@ -21,6 +21,7 @@ void MassSpringSystemSimulator::initUI(DrawingUtilitiesClass * DUC){
 	TwAddVarRW(DUC->g_pTweakBar, "Num Spheres", TW_TYPE_INT32, &m_numSpheres, "min=1");
 	TwAddVarRW(DUC->g_pTweakBar, "Sphere Size", TW_TYPE_FLOAT, &m_sphereSize, "min=0.01 step=0.01");
 	TwAddVarRW(DUC->g_pTweakBar, "Ext. Force Intensity", TW_TYPE_FLOAT, &intensity, "min=0.0 step=0.1");
+	TwAddVarRW(DUC->g_pTweakBar, "Gravity", TW_TYPE_FLOAT, &m_gravity, "min=-20.0 step=0.1");
 }
 
 void MassSpringSystemSimulator::reset(){
@@ -410,7 +411,7 @@ void MassSpringSystemSimulator::setupComplexScene()
 		if (i % 4 > 1)
 			vel *= -1.0f;
 		cout << "Velocity is: " << vel << ".\n";
-		addMassPoint(Vec3(0, 1 + pow((-1), i), i - 1*(i%2)), vel, false);
+		addMassPoint(Vec3(0, 1 + pow((-1), i), (i - 1*(i%2)) * 0.1f), vel, false);
 	}
 	//addMassPoint(Vec3(0, 0, 0), Vec3(-1, 0, 0), false);
 	//addMassPoint(Vec3(0, 2, 0), Vec3(1, 0, 0), false);
