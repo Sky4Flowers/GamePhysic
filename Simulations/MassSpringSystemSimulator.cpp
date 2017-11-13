@@ -69,6 +69,7 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase){
 		//set field values
 		m_numSpheres = 2;
 		m_sphereSize = 0.05f;
+		m_gravity = 0.0f;
 		//fitToBoxCoef = 0.25f;
 
 		//add mass points
@@ -81,6 +82,7 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase){
 		break;
 	case 1:
 		cout << "Integrator: Leap Frog\n";
+		m_gravity = 0.0f;
 		break;
 	case 2:
 		cout << "Integrator: Midpoint\n";
@@ -89,6 +91,7 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase){
 		//set field values
 		m_numSpheres = 2;
 		m_sphereSize = 0.05f;
+		m_gravity = 0.0f;
 		//fitToBoxCoef = 0.25f;
 
 		//add mass points
@@ -113,15 +116,16 @@ void MassSpringSystemSimulator::notifyCaseChanged(int testCase){
 		addMassPoint(Vec3(0, 2, 0), Vec3(1, 0, 0), false);
 		addSpring(0, 1, 1);
 		setStiffness(40);
+		m_gravity = 0.0f;
 
 		break;
 	case 4:
 		setupComplexScene();
+		cout << "Complex Demo with Euler integration\n";
 		break;
 
 	case 5:
-		points.clear();
-		springs.clear();
+		setupComplexScene();
 		cout << "Complex Demo with midpoint integration\n";
 		break;
 	}
@@ -222,6 +226,10 @@ void MassSpringSystemSimulator::simulateTimestep(float timeStep) {
 			cout<< "case 3 doesn't work somehow...";
 			}
 		}//system("pause");
+		break;
+	}
+	case (5): {
+		midPointStep(timeStep);
 		break;
 	}
 	};
@@ -402,6 +410,7 @@ void MassSpringSystemSimulator::setupComplexScene()
 	//set field values
 	m_numSpheres = 20;
 	m_sphereSize = 0.05f;
+	m_gravity = -9.01f;
 	//fitToBoxCoef = 0.25f;
 
 	//add mass points
