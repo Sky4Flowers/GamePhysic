@@ -18,7 +18,7 @@ const char * MassSpringSystemSimulator::getTestCasesStr(){
 
 void MassSpringSystemSimulator::initUI(DrawingUtilitiesClass * DUC){
 	this->DUC = DUC;
-	TwAddVarRW(DUC->g_pTweakBar, "Num Spheres", TW_TYPE_INT32, &m_numSpheres, "min=1");
+	//TwAddVarRW(DUC->g_pTweakBar, "Num Spheres", TW_TYPE_INT32, &m_numSpheres, "min=1");
 	TwAddVarRW(DUC->g_pTweakBar, "Sphere Size", TW_TYPE_FLOAT, &m_sphereSize, "min=0.01 step=0.01");
 	TwAddVarRW(DUC->g_pTweakBar, "Ext. Force Intensity", TW_TYPE_FLOAT, &intensity, "min=0.0 step=0.1");
 	TwAddVarRW(DUC->g_pTweakBar, "Gravity", TW_TYPE_FLOAT, &m_gravity, "min=-20.0 step=0.1");
@@ -243,7 +243,7 @@ void MassSpringSystemSimulator::onClick(int x, int y) {
 	m_trackmouse.x = x;
 	m_trackmouse.y = y;
 	cout << "mouse clicked with pos: " << x << "," << y << "\n";
-	if (!isDragged) {
+	if (!isDragged && (m_iIntegrator==4 || m_iIntegrator==5)) {
 		isDragged = true;
 		first = Vec3(x, y, 0);
 		cout << "firstest vec: " << first<< "\n";
@@ -358,7 +358,7 @@ void MassSpringSystemSimulator::eulerStep(float timeStep)
 		b->Vel += -1.0f * accel * timeStep;
 		updateLength(i);
 	}	
-	if ((newF.x != 0) && (newF.y != 0)) {
+	if ((m_iIntegrator == 4 || m_iIntegrator == 5) && (newF.x != 0) && (newF.y != 0)) {
 		for (int i = 0; i < points.size(); i++) {
 			Vec3 accel = newF * intensity / m_fMass;
 			//if wrong add pos
@@ -390,7 +390,7 @@ void MassSpringSystemSimulator::midPointStep(float timeStep)
 		b->Vel += timeStep * -1.0f * accel;
 		updateLength(i);
 	}
-	if ((newF.x != 0) && (newF.y != 0)) {
+	if ((m_iIntegrator==4 || m_iIntegrator==5) && (newF.x != 0) && (newF.y != 0)) {
 		for (int i = 0; i < points.size(); i++) {
 			Vec3 accel = newF *intensity / m_fMass;
 			points[i].Vel += accel*timeStep;
@@ -458,6 +458,8 @@ void MassSpringSystemSimulator::setupComplexScene()
 }
 void MassSpringSystemSimulator::detectCollisions(){
 	//Collisions
+	if (m_iIntegrator != 4 && m_iIntegrator != 5)
+		return;
 	int counter = 1;
 	for (int i = 0; i < m_numSpheres; i++) {
 		//Floorcollision
