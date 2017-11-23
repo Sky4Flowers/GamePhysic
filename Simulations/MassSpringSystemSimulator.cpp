@@ -449,11 +449,12 @@ void MassSpringSystemSimulator::setupComplexScene()
 	int o = 6;
 	for (int i = 0; i < 4; i ++){
 		o -= i;
-		addSpring(tmpLength + o, tmpLength + 1, 1);
-		addSpring(tmpLength + o, tmpLength + 2, 1);
-		addSpring(tmpLength + o, tmpLength + 4, 1);
-		addSpring(tmpLength + o, tmpLength + 7, 1);
+		addSpring(tmpLength + o, tmpLength + 1, 0.3f);
+		addSpring(tmpLength + o, tmpLength + 2, 0.3f);
+		addSpring(tmpLength + o, tmpLength + 4, 0.3f);
+		addSpring(tmpLength + o, tmpLength + 7, 0.3f);
 	}
+	//Würfel Ende
 }
 void MassSpringSystemSimulator::detectCollisions(){
 	//Collisions
