@@ -32,6 +32,7 @@ public:
 	void addRigidBody(Vec3 position, Vec3 size, int mass);
 	void setOrientationOf(int i,Quat orientation);
 	void setVelocityOf(int i, Vec3 velocity);
+	Vec3 calcAccel(Vec3 force, int index);
 
 private:
 	// Attributes
@@ -49,6 +50,7 @@ private:
 		Vec3 pos; //position
 		Vec3 size; //size
 		Quat rot;
+		Vec3 vel; //velocity
 
 		int mass;
 	};

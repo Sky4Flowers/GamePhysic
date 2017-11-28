@@ -46,11 +46,39 @@ void RigidBodySystemSimulator::notifyCaseChanged(int testCase)
 
 void RigidBodySystemSimulator::externalForcesCalculations(float timeElapsed)
 {
+	//adds all external forces to one, we have a vector external forces!
+	//later: for all forces we have!
+	//float force = m_externalForce.x + m_externalForce.y + m_externalForce.z;
+
+}
+
+//returns acceleration for a mass point
+Vec3 RigidBodySystemSimulator::calcAccel(Vec3 force, int index)
+{
+	return force / bodies[index].mass;
 }
 
 void RigidBodySystemSimulator::simulateTimestep(float timeStep)
 {
+	//update q in this method
+
+	for (int i = 0; i < bodies.size(); i++) {
+		//forces - do the apply-force on body method
+		//Vec3 f =
+
+		//euler
+
+		//hier calc accel benutzen asap
+		//statt den nullen die methode
+		Vec3 accel, q(0,0,0); 
+			
+		//update position of first point
+		bodies[i].pos += bodies[i].vel *timeStep;
+		bodies[i].vel += accel *timeStep;
+	}
+
 }
+
 
 void RigidBodySystemSimulator::onClick(int x, int y)
 {
@@ -103,3 +131,4 @@ void RigidBodySystemSimulator::setOrientationOf(int i, Quat orientation)
 void RigidBodySystemSimulator::setVelocityOf(int i, Vec3 velocity)
 {
 }
+
