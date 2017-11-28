@@ -82,24 +82,23 @@ void RigidBodySystemSimulator::simulateTimestep(float timeStep)
 	//update q in this method
 
 	for (int i = 0; i < bodies.size(); i++) {
+		//TBD
+		Vec3 forceSum = Vec3(0, 0, 0);
+		//here: calc of q
+		Vec3 q = Vec3(0, 0, 0);
+		//all pts
 		//forces - do the apply-force on body method
 
 		//we still have to get them !!!!!!!!!!!!!!!
-		vector <Vec3> forces;
-		//TBD
-		Vec3 forceSum = Vec3(0,0,0);
-		for (int k = 0; k < forces.size();k++) {
-			forceSum += forces[k];
-		}
-		//all pts
-		vector <Vec3> locations;
 
-		//here: calc of q
-		Vec3 q = Vec3(0, 0, 0);
-		for (int j = 0; j < locations.size();j++) {
-			//crossproduct: locations with forces
-			q += cross(locations[j],forces[j]);
+		//hard coded force which is only relevant to the first demo
+		if (isFirstStep) 
+		{
+			newApplyForce(&forceSum, &q, Vec3(0.3f, 0.5f, 0.25f), Vec3(1, 1, 0));
+			isFirstStep = false;
 		}
+		
+		//collision here...
 
 		//euler
 
@@ -144,6 +143,12 @@ Vec3 RigidBodySystemSimulator::getAngularVelocityOfRigidBody(int i)
 void RigidBodySystemSimulator::applyForceOnBody(int i, Vec3 loc, Vec3 force)
 {
 
+}
+
+void RigidBodySystemSimulator::newApplyForce(Vec3 *forceSum, Vec3 *q, Vec3 loc, Vec3 force) 
+{
+	*q += cross(force,loc);
+	*forceSum += force;
 }
 
 void RigidBodySystemSimulator::addRigidBody(Vec3 position, Vec3 size, int mass)
