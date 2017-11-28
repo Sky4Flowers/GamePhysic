@@ -33,6 +33,7 @@ public:
 	void addRigidBody(Vec3 position, Vec3 size, int mass);
 	void setOrientationOf(int i,Quat orientation);
 	void setVelocityOf(int i, Vec3 velocity);
+	Vec3 calcAccel(Vec3 force, int index);
 
 	//Own Functions
 	void RigidBodySystemSimulator::getCollisions(int);
