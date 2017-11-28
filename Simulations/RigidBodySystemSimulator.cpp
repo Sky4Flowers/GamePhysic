@@ -62,22 +62,22 @@ void RigidBodySystemSimulator::onMouse(int x, int y)
 
 int RigidBodySystemSimulator::getNumberOfRigidBodies()
 {
-	return 0;
+	return bodies.size;
 }
 
 Vec3 RigidBodySystemSimulator::getPositionOfRigidBody(int i)
 {
-	return Vec3();
+	return bodies[i].pos;
 }
 
 Vec3 RigidBodySystemSimulator::getLinearVelocityOfRigidBody(int i)
 {
-	return Vec3();
+	return bodies[i].vel;
 }
 
 Vec3 RigidBodySystemSimulator::getAngularVelocityOfRigidBody(int i)
 {
-	return Vec3();
+	return bodies[i].angularVel;
 }
 
 void RigidBodySystemSimulator::applyForceOnBody(int i, Vec3 loc, Vec3 force)
@@ -102,4 +102,5 @@ void RigidBodySystemSimulator::setOrientationOf(int i, Quat orientation)
 
 void RigidBodySystemSimulator::setVelocityOf(int i, Vec3 velocity)
 {
+	bodies[i].vel = velocity;
 }
