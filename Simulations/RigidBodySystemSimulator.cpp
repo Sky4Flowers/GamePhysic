@@ -62,7 +62,7 @@ void RigidBodySystemSimulator::onMouse(int x, int y)
 
 int RigidBodySystemSimulator::getNumberOfRigidBodies()
 {
-	return bodies.size;
+	return bodies.size();
 }
 
 Vec3 RigidBodySystemSimulator::getPositionOfRigidBody(int i)
@@ -103,4 +103,24 @@ void RigidBodySystemSimulator::setOrientationOf(int i, Quat orientation)
 void RigidBodySystemSimulator::setVelocityOf(int i, Vec3 velocity)
 {
 	bodies[i].vel = velocity;
+}
+
+void RigidBodySystemSimulator::getCollisions(int i) {
+	Mat4 scaleMat, transMat, rotMat, Obj2WorldMatrix_A, Obj2WorldMatrix_B;
+	//calc Obj2WorldMatrix for Object A
+	rotMat = bodies[i].rot.getRotMat();
+	scaleMat.initScaling(bodies[i].size.x, bodies[i].size.y, bodies[i].size.z);
+	Obj2WorldMatrix_A = scaleMat * rotMat * transMat;
+
+	for (int k = i + 1; k < bodies.size();k++) {
+		//calc Obj2WorldMatrix for Object B
+		rotMat = bodies[k].rot.getRotMat();
+		scaleMat.initScaling(bodies[k].size.x, bodies[k].size.y, bodies[k].size.z);
+		Obj2WorldMatrix_B = scaleMat * rotMat * transMat;
+
+		//Collisiondetection
+		CollisionInfo ci = checkCollisionSAT(Obj2WorldMatrix_A, Obj2WorldMatrix_B); //To test: Is the collpoint of A or of B?
+		CollisionInfo ck = checkCollisionSAT(Obj2WorldMatrix_B, Obj2WorldMatrix_A);
+		
+	}
 }
