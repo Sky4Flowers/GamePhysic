@@ -2,7 +2,9 @@
 
 RigidBodySystemSimulator::RigidBodySystemSimulator()
 {
-	addRigidBody(Vec3(0, 0, 0), Vec3(1, 1, 1), 10);
+	addRigidBody(Vec3(0, 0, 0), Vec3(1, 0.6, 0.5), 2);
+	//set rotation
+	setOrientationOf(0, Quat(0, 0, M_PI / 2.0f));
 }
 
 const char * RigidBodySystemSimulator::getTestCasesStr()
@@ -22,12 +24,17 @@ void RigidBodySystemSimulator::reset()
 void RigidBodySystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext)
 {
 	//lighting
-	//DUC->setUpLighting(Vec3(0, 1, 0), 0.4*Vec3(0, 0, 0), 100, 0.6*Vec3(1, 1, 1));
 	DUC->setUpLighting(Vec3(0, 0, 0), 0.4*Vec3(1, 1, 1), 2000.0, Vec3(0.5, 0.5, 0.5));
-	for (int i = 0; i < bodies.size(); i++) 
+	//variable matrices
+	Mat4 scaleMat, transMat, rotMat, Obj2WorldMatrix;
+	for (int i = 0; i < bodies.size(); i++)
 	{
-		//Mat4 Obj2WorldMatrix = bodies[i].scale * bodies[i].rot * bodies[i].trans;
-		Mat4 Obj2WorldMatrix = Mat4(1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1);
+		//assign values of current body
+		transMat.initTranslation(bodies[i].pos.x, bodies[i].pos.y, bodies[i].pos.z);
+		rotMat = bodies[i].rot.getRotMat();
+		scaleMat.initScaling(bodies[i].size.x, bodies[i].size.y, bodies[i].size.z);
+		//calc Obj2WorldMatrix
+		Obj2WorldMatrix = scaleMat * rotMat * transMat;
 		DUC->drawRigidBody(Obj2WorldMatrix);
 	}
 	
@@ -80,16 +87,17 @@ void RigidBodySystemSimulator::applyForceOnBody(int i, Vec3 loc, Vec3 force)
 void RigidBodySystemSimulator::addRigidBody(Vec3 position, Vec3 size, int mass)
 {
 	rigidBody tmp;
-	tmp.rot = Mat4(1, 1, 1);	
-	tmp.scale = Mat4(size.x,size.y,size.z);
-	tmp.trans = Mat4(position.x, position.y, position.z);
+	tmp.pos = position;
+	tmp.size = size;
 	tmp.mass = mass;
+	tmp.rot = Quat();
 
 	bodies.push_back(tmp);
 }
 
 void RigidBodySystemSimulator::setOrientationOf(int i, Quat orientation)
 {
+	bodies[i].rot = orientation;
 }
 
 void RigidBodySystemSimulator::setVelocityOf(int i, Vec3 velocity)

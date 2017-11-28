@@ -2,7 +2,8 @@
 #define RIGIDBODYSYSTEMSIMULATOR_h
 #include "Simulator.h"
 //add your header for your rigid body system, for e.g.,
-//#include "rigidBodySystem.h" 
+//#include "rigidBodySystem.h"
+
 
 #define TESTCASEUSEDTORUNTEST 2
 
@@ -45,9 +46,10 @@ private:
 
 	//rigidBody struct
 	struct rigidBody {
-		Mat4 scale; //scale
-		Mat4 rot; //rotation
-		Mat4 trans; //translate
+		Vec3 pos; //position
+		Vec3 size; //size
+		Quat rot;
+
 		int mass;
 	};
 
