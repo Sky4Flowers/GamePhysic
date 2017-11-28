@@ -64,13 +64,27 @@ void RigidBodySystemSimulator::simulateTimestep(float timeStep)
 
 	for (int i = 0; i < bodies.size(); i++) {
 		//forces - do the apply-force on body method
-		//Vec3 f =
+
+		//we still have to get them !!!!!!!!!!!!!!!
+		vector <Vec3> forces;
+		//TBD
+		Vec3 forceSum = Vec3(0,0,0);
+		for (int k = 0; k < forces.size();k++) {
+			forceSum += forces[k];
+		}
+		//all pts
+		vector <Vec3> locations;
+
+		//here: calc of q
+		Vec3 q = Vec3(0, 0, 0);
+		for (int j = 0; j < locations.size();j++) {
+			//crossproduct: locations with forces
+			q += cross(locations[j],forces[j]);
+		}
 
 		//euler
 
-		//hier calc accel benutzen asap
-		//statt den nullen die methode
-		Vec3 accel, q(0,0,0); 
+		Vec3 accel = calcAccel(forceSum, i);
 			
 		//update position of first point
 		bodies[i].pos += bodies[i].vel *timeStep;
