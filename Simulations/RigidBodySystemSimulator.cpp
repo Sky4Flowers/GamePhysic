@@ -9,7 +9,9 @@ RigidBodySystemSimulator::RigidBodySystemSimulator()
 
 const char * RigidBodySystemSimulator::getTestCasesStr()
 {
-	return nullptr;
+
+
+	return "DEMO 1, DEMO 2, DEMO 3, DEMO 4";
 }
 
 void RigidBodySystemSimulator::initUI(DrawingUtilitiesClass * DUC)
@@ -19,6 +21,21 @@ void RigidBodySystemSimulator::initUI(DrawingUtilitiesClass * DUC)
 
 void RigidBodySystemSimulator::reset()
 {
+	/*m_mouse.x = m_mouse.y = 0;
+	m_trackmouse.x = m_trackmouse.y = 0;
+	m_oldtrackmouse.x = m_oldtrackmouse.y = 0;
+	Mat4 scaleMat, transMat, rotMat, Obj2WorldMatrix;
+	for (int i = 0; i < bodies.size(); i++)
+	{
+		//assign values of current body
+		transMat.initTranslation(bodies[i].pos.x, bodies[i].pos.y, bodies[i].pos.z);
+		rotMat = bodies[i].rot.getRotMat();
+		scaleMat.initScaling(bodies[i].size.x, bodies[i].size.y, bodies[i].size.z);
+		//calc Obj2WorldMatrix
+		Obj2WorldMatrix = scaleMat * rotMat * transMat;
+		DUC->drawRigidBody(Obj2WorldMatrix);
+	}*/
+	//cout << "reset!\n";
 }
 
 void RigidBodySystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext)
@@ -42,6 +59,8 @@ void RigidBodySystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateCont
 
 void RigidBodySystemSimulator::notifyCaseChanged(int testCase)
 {
+	//cout << "Notify: " << testCase << "\n";
+
 }
 
 void RigidBodySystemSimulator::externalForcesCalculations(float timeElapsed)
@@ -104,7 +123,7 @@ void RigidBodySystemSimulator::onMouse(int x, int y)
 
 int RigidBodySystemSimulator::getNumberOfRigidBodies()
 {
-	return bodies.size;
+	return bodies.size();
 }
 
 Vec3 RigidBodySystemSimulator::getPositionOfRigidBody(int i)
@@ -124,6 +143,7 @@ Vec3 RigidBodySystemSimulator::getAngularVelocityOfRigidBody(int i)
 
 void RigidBodySystemSimulator::applyForceOnBody(int i, Vec3 loc, Vec3 force)
 {
+
 }
 
 void RigidBodySystemSimulator::addRigidBody(Vec3 position, Vec3 size, int mass)
