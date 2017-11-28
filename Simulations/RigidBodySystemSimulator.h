@@ -49,9 +49,10 @@ private:
 	struct rigidBody {
 		Vec3 pos; //position
 		Vec3 size; //size
+		Vec3 vel;
+		Vec3 angularVel;
 		Quat rot;
-		Vec3 vel; //velocity
-
+		
 		int mass;
 	};
 
