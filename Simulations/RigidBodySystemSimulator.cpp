@@ -12,6 +12,7 @@ const char * RigidBodySystemSimulator::getTestCasesStr()
 
 void RigidBodySystemSimulator::initUI(DrawingUtilitiesClass * DUC)
 {
+	this->DUC = DUC;
 }
 
 void RigidBodySystemSimulator::reset()
