@@ -37,8 +37,8 @@ public:
 	Vec3 calcAccel(Vec3 force, int index);
 
 	//Own private Functions
-	Vec3 RigidBodySystemSimulator::getCollisionForcesOf(int);
-	float RigidBodySystemSimulator::doTheJ(Vec3, Vec3, int, int, float);
+	void RigidBodySystemSimulator::getCollisionForcesOf(const int&);
+	void RigidBodySystemSimulator::doTheJ(const Vec3&, const Vec3&, const int&, const int&, const float&);
 
 private:
 	// Attributes

@@ -173,7 +173,7 @@ void RigidBodySystemSimulator::setVelocityOf(int i, Vec3 velocity)
 }
 
 //Soll Gesamtforce (Später auch Angular) zurückgeben
-Vec3 RigidBodySystemSimulator::getCollisionForcesOf(int i) {
+void RigidBodySystemSimulator::getCollisionForcesOf(const int& i) {
 	Mat4 scaleMat, transMat, rotMat, Obj2WorldMatrix_A, Obj2WorldMatrix_B;
 	//calc Obj2WorldMatrix for Object A
 	rotMat = bodies[i].rot.getRotMat();
@@ -188,20 +188,25 @@ Vec3 RigidBodySystemSimulator::getCollisionForcesOf(int i) {
 
 		//Collisiondetection
 		CollisionInfo ci = checkCollisionSAT(Obj2WorldMatrix_A, Obj2WorldMatrix_B); //To test: Is the collpoint of A or of B?
-		CollisionInfo ck = checkCollisionSAT(Obj2WorldMatrix_B, Obj2WorldMatrix_A);
+		cout << "In RigidBodySystemSimulator.cpp > getCollisionForceOf() : Hardcoded parameter" << endl;
+		float c = 0.5f;
+		doTheJ(ci.collisionPointWorld, ci.normalWorld, i, k, c);
 	}
-	return Vec3(0,0,0);
 }
 
-float RigidBodySystemSimulator::doTheJ(Vec3 point, Vec3 normal_n, int body_a, int body_b, float c) {
+void RigidBodySystemSimulator::doTheJ(const Vec3& point, const Vec3& normal_n, const int& body_a, const int& body_b, const float& c) {
 	//Crossproduct of x(i) and n
 	Vec3 pxn_a = cross(point - bodies[body_a].pos, normal_n);
 	Vec3 pxn_b = cross(point - bodies[body_b].pos, normal_n);
+	Vec3 vrel = (bodies[body_a].vel + cross(bodies[body_a].angularVel, pxn_a)) - (bodies[body_b].vel + cross(bodies[body_b].angularVel, pxn_b));
 	//Calculate J
-	float J = dot(-(1 + c)*(bodies[body_a].vel - bodies[body_b].vel), normal_n) /
+	float J = dot(-(1 + c)*(vrel), normal_n) /
 		((1 / bodies[body_a].mass)
 			+ (1 / bodies[body_b].mass)
 			+ dot(pxn_a,pxn_a) / bodies[body_a].iTensor
 			+ dot(pxn_b,pxn_b) / bodies[body_b].iTensor);
-	return J;
+	bodies[body_a].vel += J*normal_n / bodies[body_a].mass;
+	bodies[body_b].vel -= J*normal_n / bodies[body_b].mass;
+	bodies[body_a].angularVel += cross(point - bodies[body_a].pos, J*normal_n) / bodies[body_a].iTensor;
+	bodies[body_b].angularVel += cross(point - bodies[body_b].pos, J*normal_n) / bodies[body_b].iTensor;
 }
