@@ -189,7 +189,19 @@ Vec3 RigidBodySystemSimulator::getCollisionForcesOf(int i) {
 		//Collisiondetection
 		CollisionInfo ci = checkCollisionSAT(Obj2WorldMatrix_A, Obj2WorldMatrix_B); //To test: Is the collpoint of A or of B?
 		CollisionInfo ck = checkCollisionSAT(Obj2WorldMatrix_B, Obj2WorldMatrix_A);
-		
 	}
 	return Vec3(0,0,0);
+}
+
+float RigidBodySystemSimulator::doTheJ(Vec3 point, Vec3 normal_n, int body_a, int body_b, float c) {
+	//Crossproduct of x(i) and n
+	Vec3 pxn_a = cross(point - bodies[body_a].pos, normal_n);
+	Vec3 pxn_b = cross(point - bodies[body_b].pos, normal_n);
+	//Calculate J
+	float J = dot(-(1 + c)*(bodies[body_a].vel - bodies[body_b].vel), normal_n) /
+		((1 / bodies[body_a].mass)
+			+ (1 / bodies[body_b].mass)
+			+ dot(pxn_a,pxn_a) / bodies[body_a].iTensor
+			+ dot(pxn_b,pxn_b) / bodies[body_b].iTensor);
+	return J;
 }

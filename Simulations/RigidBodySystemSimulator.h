@@ -38,6 +38,7 @@ public:
 
 	//Own private Functions
 	Vec3 RigidBodySystemSimulator::getCollisionForcesOf(int);
+	float RigidBodySystemSimulator::doTheJ(Vec3, Vec3, int, int, float);
 
 private:
 	// Attributes
@@ -61,6 +62,7 @@ private:
 		Quat rot;
 		
 		int mass;
+		float iTensor;
 	};
 
 	//vector of rigidBodies
