@@ -30,6 +30,7 @@ public:
 	Vec3 getLinearVelocityOfRigidBody(int i);
 	Vec3 getAngularVelocityOfRigidBody(int i);
 	void applyForceOnBody(int i, Vec3 loc, Vec3 force);
+	void newApplyForce(Vec3 * forceSum, Vec3 * q, Vec3 loc, Vec3 force);
 	void addRigidBody(Vec3 position, Vec3 size, int mass);
 	void setOrientationOf(int i,Quat orientation);
 	void setVelocityOf(int i, Vec3 velocity);
@@ -42,6 +43,8 @@ private:
 	// Attributes
 	// add your RigidBodySystem data members, for e.g.,
 	// RigidBodySystem * m_pRigidBodySystem; 
+	//variable for use of the first demo: only use one timestep
+	bool isFirstStep = true;
 	Vec3 m_externalForce;
 
 	// UI Attributes
