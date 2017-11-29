@@ -35,8 +35,8 @@ public:
 	void setVelocityOf(int i, Vec3 velocity);
 	Vec3 calcAccel(Vec3 force, int index);
 
-	//Own Functions
-	void RigidBodySystemSimulator::getCollisions(int);
+	//Own private Functions
+	Vec3 RigidBodySystemSimulator::getCollisionForcesOf(int);
 
 private:
 	// Attributes

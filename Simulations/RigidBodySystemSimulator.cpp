@@ -141,7 +141,9 @@ Vec3 RigidBodySystemSimulator::getAngularVelocityOfRigidBody(int i)
 
 void RigidBodySystemSimulator::applyForceOnBody(int i, Vec3 loc, Vec3 force)
 {
-
+	//Vec3 relPos = loc - bodies[i].pos;
+	//bodies[i].torque += cross(relPos, force);
+	//bodies[i].acc += force;
 }
 
 void RigidBodySystemSimulator::addRigidBody(Vec3 position, Vec3 size, int mass)
@@ -165,7 +167,8 @@ void RigidBodySystemSimulator::setVelocityOf(int i, Vec3 velocity)
 	bodies[i].vel = velocity;
 }
 
-void RigidBodySystemSimulator::getCollisions(int i) {
+//Soll Gesamtforce (Später auch Angular) zurückgeben
+Vec3 RigidBodySystemSimulator::getCollisionForcesOf(int i) {
 	Mat4 scaleMat, transMat, rotMat, Obj2WorldMatrix_A, Obj2WorldMatrix_B;
 	//calc Obj2WorldMatrix for Object A
 	rotMat = bodies[i].rot.getRotMat();
@@ -183,4 +186,5 @@ void RigidBodySystemSimulator::getCollisions(int i) {
 		CollisionInfo ck = checkCollisionSAT(Obj2WorldMatrix_B, Obj2WorldMatrix_A);
 		
 	}
+	return Vec3(0,0,0);
 }
