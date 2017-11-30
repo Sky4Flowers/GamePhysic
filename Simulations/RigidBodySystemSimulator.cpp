@@ -230,5 +230,6 @@ void RigidBodySystemSimulator::doTheJ(const Vec3& point, const Vec3& normal_n, c
 	transposed.transpose();
 	//get I_0
 	body->inertiaTensor = body->rot.getRotMat() *body->inertiaTensor * transposed;
+	body->inertiaTensor.value[3][3] = 1.0f;
 }
 
