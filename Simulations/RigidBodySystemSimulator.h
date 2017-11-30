@@ -33,7 +33,6 @@ public:
 	void addRigidBody(Vec3 position, Vec3 size, int mass);
 	void setOrientationOf(int i,Quat orientation);
 	void setVelocityOf(int i, Vec3 velocity);
-	Vec3 calcAccel(Vec3 force, int index);
 
 private:
 	// Attributes
@@ -55,11 +54,16 @@ private:
 		Vec3 vel;
 		Vec3 angularVel;
 		Quat rot;
+		Mat4 inertiaTensor;
 		
 		int mass;
 	};
 
 	//vector of rigidBodies
 	vector<rigidBody> bodies;
+
+	//self made methods
+	void updateTensor(rigidBody * body);
+	Vec3 calcAccel(Vec3 force, int index);
 	};
 #endif

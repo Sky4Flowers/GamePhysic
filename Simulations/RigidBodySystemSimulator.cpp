@@ -5,6 +5,7 @@ RigidBodySystemSimulator::RigidBodySystemSimulator()
 	addRigidBody(Vec3(0, 0, 0), Vec3(1, 0.6, 0.5), 2);
 	//set rotation
 	setOrientationOf(0, Quat(0, 0, M_PI / 2.0f));
+
 }
 
 const char * RigidBodySystemSimulator::getTestCasesStr()
@@ -159,6 +160,20 @@ void RigidBodySystemSimulator::addRigidBody(Vec3 position, Vec3 size, int mass)
 	tmp.mass = mass;
 	tmp.rot = Quat();
 
+	//set initial inertia tensor for rigidBodies
+	//note: this is a 4x4 matrix, although the calculation was 3x3
+	tmp.inertiaTensor = Mat4(
+		pow(tmp.size.y, 2) + pow(tmp.size.z, 2), 0.0f, 0.0f, 0.0f
+		, 0.0f, pow(tmp.size.x, 2) + pow(tmp.size.z, 2), 0.0f, 0.0f
+		, 0.0f, 0.0f, pow(tmp.size.x, 2) + pow(tmp.size.y, 2), 0.0f
+		, 0, 0, 0, 1
+		);
+
+	tmp.inertiaTensor *= (float)tmp.mass / 12.0f ;
+	//set the last entry of the matrix as a 1 (not sure about this)
+	tmp.inertiaTensor.value[3][3] = 1.0f;
+	cout << "Added a rigidBody. Inertia tensor:\n" << tmp.inertiaTensor << "\n";
+	
 	bodies.push_back(tmp);
 }
 
@@ -170,5 +185,13 @@ void RigidBodySystemSimulator::setOrientationOf(int i, Quat orientation)
 void RigidBodySystemSimulator::setVelocityOf(int i, Vec3 velocity)
 {
 	bodies[i].vel = velocity;
+}
+
+void RigidBodySystemSimulator::updateTensor(rigidBody *body) 
+{
+	Mat4 transposed = body->rot.getRotMat();
+	transposed.transpose();
+	//get I_0
+	body->inertiaTensor = body->rot.getRotMat() *body->inertiaTensor * transposed;
 }
 
