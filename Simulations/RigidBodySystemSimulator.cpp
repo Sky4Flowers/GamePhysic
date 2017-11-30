@@ -10,8 +10,6 @@ RigidBodySystemSimulator::RigidBodySystemSimulator()
 
 const char * RigidBodySystemSimulator::getTestCasesStr()
 {
-
-
 	return "DEMO 1, DEMO 2, DEMO 3, DEMO 4";
 }
 
@@ -143,7 +141,9 @@ Vec3 RigidBodySystemSimulator::getAngularVelocityOfRigidBody(int i)
 
 void RigidBodySystemSimulator::applyForceOnBody(int i, Vec3 loc, Vec3 force)
 {
-
+	//Vec3 relPos = loc - bodies[i].pos;
+	//bodies[i].torque += cross(relPos, force);
+	//bodies[i].acc += force;
 }
 
 void RigidBodySystemSimulator::newApplyForce(Vec3 *forceSum, Vec3 *q, Vec3 loc, Vec3 force) 
@@ -187,7 +187,44 @@ void RigidBodySystemSimulator::setVelocityOf(int i, Vec3 velocity)
 	bodies[i].vel = velocity;
 }
 
-void RigidBodySystemSimulator::updateTensor(rigidBody *body) 
+//Soll Gesamtforce (Später auch Angular) zurückgeben
+void RigidBodySystemSimulator::getCollisionForcesOf(const int& i) {
+	Mat4 scaleMat, transMat, rotMat, Obj2WorldMatrix_A, Obj2WorldMatrix_B;
+	//calc Obj2WorldMatrix for Object A
+	rotMat = bodies[i].rot.getRotMat();
+	scaleMat.initScaling(bodies[i].size.x, bodies[i].size.y, bodies[i].size.z);
+	Obj2WorldMatrix_A = scaleMat * rotMat * transMat;
+
+	for (int k = i + 1; k < bodies.size();k++) {
+		//calc Obj2WorldMatrix for Object B
+		rotMat = bodies[k].rot.getRotMat();
+		scaleMat.initScaling(bodies[k].size.x, bodies[k].size.y, bodies[k].size.z);
+		Obj2WorldMatrix_B = scaleMat * rotMat * transMat;
+
+		//Collisiondetection
+		CollisionInfo ci = checkCollisionSAT(Obj2WorldMatrix_A, Obj2WorldMatrix_B); //To test: Is the collpoint of A or of B?
+		cout << "In RigidBodySystemSimulator.cpp > getCollisionForceOf() : Hardcoded parameter" << endl;
+		float c = 0.5f;
+		doTheJ(ci.collisionPointWorld, ci.normalWorld, i, k, c);
+	}
+}
+
+void RigidBodySystemSimulator::doTheJ(const Vec3& point, const Vec3& normal_n, const int& body_a, const int& body_b, const float& c) {
+	//Crossproduct of x(i) and n
+	Vec3 pxn_a = cross(point - bodies[body_a].pos, normal_n);
+	Vec3 pxn_b = cross(point - bodies[body_b].pos, normal_n);
+	Vec3 vrel = (bodies[body_a].vel + cross(bodies[body_a].angularVel, pxn_a)) - (bodies[body_b].vel + cross(bodies[body_b].angularVel, pxn_b));
+	//Calculate J
+	float J = dot(-(1 + c)*(vrel), normal_n) /
+		((1 / bodies[body_a].mass)
+			+ (1 / bodies[body_b].mass)
+			+ dot(pxn_a,pxn_a) / bodies[body_a].iTensor
+			+ dot(pxn_b,pxn_b) / bodies[body_b].iTensor);
+	bodies[body_a].vel += J*normal_n / bodies[body_a].mass;
+	bodies[body_b].vel -= J*normal_n / bodies[body_b].mass;
+	bodies[body_a].angularVel += cross(point - bodies[body_a].pos, J*normal_n) / bodies[body_a].iTensor;
+	bodies[body_b].angularVel += cross(point - bodies[body_b].pos, J*normal_n) / bodies[body_b].iTensor;
+}void RigidBodySystemSimulator::updateTensor(rigidBody *body) 
 {
 	Mat4 transposed = body->rot.getRotMat();
 	transposed.transpose();
