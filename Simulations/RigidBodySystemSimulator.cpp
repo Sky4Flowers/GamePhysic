@@ -2,10 +2,7 @@
 
 RigidBodySystemSimulator::RigidBodySystemSimulator()
 {
-	addRigidBody(Vec3(0, 0, 0), Vec3(1, 0.6, 0.5), 2);
-	//set rotation
-	setOrientationOf(0, Quat(0, 0, M_PI / 2.0f));
-
+	
 }
 
 const char * RigidBodySystemSimulator::getTestCasesStr()
@@ -53,12 +50,22 @@ void RigidBodySystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateCont
 		Obj2WorldMatrix = scaleMat * rotMat * transMat;
 		DUC->drawRigidBody(Obj2WorldMatrix);
 	}
-	
 }
 
 void RigidBodySystemSimulator::notifyCaseChanged(int testCase)
 {
-	//cout << "Notify: " << testCase << "\n";
+	//print case
+	cout << "Notify: " << testCase << "\n";
+	//clear everything
+	bodies.clear();
+	switch (testCase) 
+	{
+	case 0:
+		isFirstStep = true;
+		addRigidBody(Vec3(0, 0, 0), Vec3(1, 0.6, 0.5), 2);
+		//set rotation
+		setOrientationOf(0, Quat(0, 0, M_PI / 2.0f));
+	}
 
 }
 
@@ -84,7 +91,7 @@ void RigidBodySystemSimulator::simulateTimestep(float timeStep)
 		//TBD
 		Vec3 forceSum = Vec3(0, 0, 0);
 		//here: calc of q
-		Vec3 q = Vec3(0, 0, 0);
+		Vec3 q = Vec3(0, 0, 0); //q is torque
 		//all pts
 		//forces - do the apply-force on body method
 
@@ -106,6 +113,20 @@ void RigidBodySystemSimulator::simulateTimestep(float timeStep)
 		//update position of first point
 		bodies[i].pos += bodies[i].vel *timeStep;
 		bodies[i].vel += accel *timeStep;
+
+		//rotation
+		//update rotation r
+		bodies[i].rot += (timeStep / 2.0f)*Quat( //caution! unsure about the angularVel as quaternion
+			0, bodies[i].angularVel.x, bodies[i].angularVel.y, bodies[i].angularVel.z 
+			) * bodies[i].rot;
+		//update angualr momentrum L
+		bodies[i].angularMomentum += timeStep*q;
+		//update inertia tensor I
+		updateTensor(&(bodies[i]));
+		//update angualr velocity w
+		bodies[i].angularVel = bodies[i].inertiaTensor.inverse() * bodies[i].angularMomentum;
+		//world position stuff
+
 	}
 
 }
@@ -159,6 +180,7 @@ void RigidBodySystemSimulator::addRigidBody(Vec3 position, Vec3 size, int mass)
 	tmp.size = size;
 	tmp.mass = mass;
 	tmp.rot = Quat();
+	tmp.angularVel = Vec3();
 
 	//set initial inertia tensor for rigidBodies
 	//note: this is a 4x4 matrix, although the calculation was 3x3
@@ -173,6 +195,10 @@ void RigidBodySystemSimulator::addRigidBody(Vec3 position, Vec3 size, int mass)
 	//set the last entry of the matrix as a 1 (not sure about this)
 	tmp.inertiaTensor.value[3][3] = 1.0f;
 	cout << "Added a rigidBody. Inertia tensor:\n" << tmp.inertiaTensor << "\n";
+
+	//set the Angular Momentum
+	tmp.angularMomentum = tmp.inertiaTensor * tmp.angularVel;
+	cout << (tmp.angularMomentum) << "\n";
 	
 	bodies.push_back(tmp);
 }
@@ -209,6 +235,7 @@ void RigidBodySystemSimulator::getCollisionForcesOf(const int& i) {
 	}
 }
 
+//TODO: fix this, inertia tensor is not a float
 void RigidBodySystemSimulator::doTheJ(const Vec3& point, const Vec3& normal_n, const int& body_a, const int& body_b, const float& c) {
 	//Crossproduct of x(i) and n
 	Vec3 pxn_a = cross(point - bodies[body_a].pos, normal_n);
@@ -224,7 +251,8 @@ void RigidBodySystemSimulator::doTheJ(const Vec3& point, const Vec3& normal_n, c
 	bodies[body_b].vel -= J*normal_n / bodies[body_b].mass;
 	bodies[body_a].angularVel += cross(point - bodies[body_a].pos, J*normal_n) / bodies[body_a].iTensor;
 	bodies[body_b].angularVel += cross(point - bodies[body_b].pos, J*normal_n) / bodies[body_b].iTensor;
-}void RigidBodySystemSimulator::updateTensor(rigidBody *body) 
+}
+void RigidBodySystemSimulator::updateTensor(rigidBody *body) 
 {
 	Mat4 transposed = body->rot.getRotMat();
 	transposed.transpose();

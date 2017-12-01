@@ -56,13 +56,14 @@ private:
 	struct rigidBody {
 		Vec3 pos; //position
 		Vec3 size; //size
-		Vec3 vel;
-		Vec3 angularVel;
-		Quat rot;
-		Mat4 inertiaTensor;
+		Vec3 vel; //v
+		Vec3 angularVel;//w
+		Quat rot;//r
+		Mat4 inertiaTensor;// I
+		Vec3 angularMomentum; // L
 		
 		int mass;
-		float iTensor;
+		float iTensor; //this is inertia tenosr as a float, it should be 4x4. remove this after fixing dotheJ method
 	};
 
 	//vector of rigidBodies
