@@ -34,7 +34,6 @@ public:
 	void addRigidBody(Vec3 position, Vec3 size, int mass);
 	void setOrientationOf(int i,Quat orientation);
 	void setVelocityOf(int i, Vec3 velocity);
-	Vec3 calcAccel(Vec3 force, int index);
 
 	//Own Functions
 	void RigidBodySystemSimulator::applyCollisionForces(const int&);
@@ -58,15 +57,21 @@ private:
 	struct rigidBody {
 		Vec3 pos; //position
 		Vec3 size; //size
-		Vec3 vel;
-		Vec3 angularVel;
-		Quat rot;
+		Vec3 vel; //v
+		Vec3 angularVel;//w
+		Quat rot;//r
+		Mat4 inertiaTensor;// I
+		Vec3 angularMomentum; // L
 		
 		int mass;
-		float iTensor;
+		float iTensor; //this is inertia tenosr as a float, it should be 4x4. remove this after fixing dotheJ method
 	};
 
 	//vector of rigidBodies
 	vector<rigidBody> bodies;
+
+	//self made methods
+	void updateTensor(rigidBody * body);
+	Vec3 calcAccel(Vec3 force, int index);
 	};
 #endif
