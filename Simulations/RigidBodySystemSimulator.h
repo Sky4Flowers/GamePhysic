@@ -36,8 +36,8 @@ public:
 	void setVelocityOf(int i, Vec3 velocity);
 	Vec3 calcAccel(Vec3 force, int index);
 
-	//Own private Functions
-	void RigidBodySystemSimulator::getCollisionForcesOf(const int&);
+	//Own Functions
+	void RigidBodySystemSimulator::applyCollisionForces(const int&);
 	void RigidBodySystemSimulator::doTheJ(const Vec3&, const Vec3&, const int&, const int&, const float&);
 
 private:
@@ -47,6 +47,7 @@ private:
 	//variable for use of the first demo: only use one timestep
 	bool isFirstStep = true;
 	Vec3 m_externalForce;
+	float m_gravity;
 
 	// UI Attributes
 	Point2D m_mouse;

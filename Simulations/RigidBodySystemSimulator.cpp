@@ -5,6 +5,10 @@ RigidBodySystemSimulator::RigidBodySystemSimulator()
 	addRigidBody(Vec3(0, 0, 0), Vec3(1, 0.6, 0.5), 2);
 	//set rotation
 	setOrientationOf(0, Quat(0, 0, M_PI / 2.0f));
+
+	//moving RB
+	addRigidBody(Vec3(0, 0.5, 3), Vec3(1, 1, 1), 4);
+	setVelocityOf(1, Vec3(0, 0, -1));
 }
 
 const char * RigidBodySystemSimulator::getTestCasesStr()
@@ -15,13 +19,15 @@ const char * RigidBodySystemSimulator::getTestCasesStr()
 void RigidBodySystemSimulator::initUI(DrawingUtilitiesClass * DUC)
 {
 	this->DUC = DUC;
+	//TwAddVarRW(DUC->g_pTweakBar, "Gravity", TW_TYPE_FLOAT, &m_gravity, "min=-20.0 step=0.1");
 }
 
 void RigidBodySystemSimulator::reset()
 {
-	/*m_mouse.x = m_mouse.y = 0;
+	m_mouse.x = m_mouse.y = 0;
 	m_trackmouse.x = m_trackmouse.y = 0;
 	m_oldtrackmouse.x = m_oldtrackmouse.y = 0;
+	/*
 	Mat4 scaleMat, transMat, rotMat, Obj2WorldMatrix;
 	for (int i = 0; i < bodies.size(); i++)
 	{
@@ -33,7 +39,7 @@ void RigidBodySystemSimulator::reset()
 		Obj2WorldMatrix = scaleMat * rotMat * transMat;
 		DUC->drawRigidBody(Obj2WorldMatrix);
 	}*/
-	//cout << "reset!\n";
+	cout << "reset!\n";
 }
 
 void RigidBodySystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateContext)
@@ -107,15 +113,26 @@ void RigidBodySystemSimulator::simulateTimestep(float timeStep)
 		bodies[i].vel += accel *timeStep;
 	}
 
+	//Collision part
+	for (int i = 0; i < bodies.size(); i++) {
+		//applyCollisionForces(i);
+	}
 }
 
 
 void RigidBodySystemSimulator::onClick(int x, int y)
 {
+	m_trackmouse.x = x;
+	m_trackmouse.y = y;
+	cout << "mouse clicked with pos: " << x << "," << y << "\n";
 }
 
 void RigidBodySystemSimulator::onMouse(int x, int y)
 {
+	m_oldtrackmouse.x = x;
+	m_oldtrackmouse.y = y;
+	m_trackmouse.x = x;
+	m_trackmouse.y = y;
 }
 
 int RigidBodySystemSimulator::getNumberOfRigidBodies()
@@ -158,6 +175,8 @@ void RigidBodySystemSimulator::addRigidBody(Vec3 position, Vec3 size, int mass)
 	tmp.size = size;
 	tmp.mass = mass;
 	tmp.rot = Quat();
+	cout << "Hardcoded Parameter! in RigidBodySystemSimulator.cpp -> addRigidBody() ITensor" << endl;
+	tmp.iTensor = 1;
 
 	bodies.push_back(tmp);
 }
@@ -173,7 +192,7 @@ void RigidBodySystemSimulator::setVelocityOf(int i, Vec3 velocity)
 }
 
 //Soll Gesamtforce (Später auch Angular) zurückgeben
-void RigidBodySystemSimulator::getCollisionForcesOf(const int& i) {
+void RigidBodySystemSimulator::applyCollisionForces(const int& i) {
 	Mat4 scaleMat, transMat, rotMat, Obj2WorldMatrix_A, Obj2WorldMatrix_B;
 	//calc Obj2WorldMatrix for Object A
 	rotMat = bodies[i].rot.getRotMat();
@@ -190,7 +209,9 @@ void RigidBodySystemSimulator::getCollisionForcesOf(const int& i) {
 		CollisionInfo ci = checkCollisionSAT(Obj2WorldMatrix_A, Obj2WorldMatrix_B); //To test: Is the collpoint of A or of B?
 		cout << "In RigidBodySystemSimulator.cpp > getCollisionForceOf() : Hardcoded parameter" << endl;
 		float c = 0.5f;
-		doTheJ(ci.collisionPointWorld, ci.normalWorld, i, k, c);
+		if (ci.isValid) {
+			doTheJ(ci.collisionPointWorld, ci.normalWorld, i, k, c);
+		}
 	}
 }
 
@@ -205,6 +226,7 @@ void RigidBodySystemSimulator::doTheJ(const Vec3& point, const Vec3& normal_n, c
 			+ (1 / bodies[body_b].mass)
 			+ dot(pxn_a,pxn_a) / bodies[body_a].iTensor
 			+ dot(pxn_b,pxn_b) / bodies[body_b].iTensor);
+	//Update the velocities
 	bodies[body_a].vel += J*normal_n / bodies[body_a].mass;
 	bodies[body_b].vel -= J*normal_n / bodies[body_b].mass;
 	bodies[body_a].angularVel += cross(point - bodies[body_a].pos, J*normal_n) / bodies[body_a].iTensor;
