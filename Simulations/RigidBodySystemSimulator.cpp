@@ -129,6 +129,7 @@ void RigidBodySystemSimulator::simulateTimestep(float timeStep)
 		bodies[i].rot += (timeStep / 2.0f)*Quat( //caution! unsure about the angularVel as quaternion
 			0, bodies[i].angularVel.x, bodies[i].angularVel.y, bodies[i].angularVel.z 
 			) * bodies[i].rot;
+		bodies[i].rot /= bodies[i].rot.norm(); //normalize the rotation quaternion
 		//update angualr momentrum L
 		bodies[i].angularMomentum += timeStep*q;
 		//update inertia tensor I
@@ -136,7 +137,8 @@ void RigidBodySystemSimulator::simulateTimestep(float timeStep)
 		//update angualr velocity w
 		bodies[i].angularVel = bodies[i].inertiaTensor.inverse() * bodies[i].angularMomentum;
 		//world position stuff
-
+		//debug
+		//cout <<"Matrix: \n"<< bodies[i].rot.getRotMat() << "Quat:" <<"\n" << bodies[i].rot<<"\n";
 	}
 
 	//Collision part
