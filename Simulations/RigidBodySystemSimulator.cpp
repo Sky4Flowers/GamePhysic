@@ -123,7 +123,7 @@ void RigidBodySystemSimulator::simulateTimestep(float timeStep)
 		}
 
 		//collision here... only relevant for demos 3 and 4
-		applyCollisionForces(i, timeStep);
+		
 		//euler
 
 		Vec3 accel = calcAccel(forceSum, i);
@@ -140,6 +140,7 @@ void RigidBodySystemSimulator::simulateTimestep(float timeStep)
 		bodies[i].rot /= bodies[i].rot.norm(); //normalize the rotation quaternion
 											   //update angualr momentrum L
 		bodies[i].angularMomentum += timeStep*q;
+		applyCollisionForces(i, timeStep);//Collisions
 		//update inertia tensor I
 		updateTensor(&(bodies[i]));
 		//update angualr velocity w
@@ -261,9 +262,7 @@ void RigidBodySystemSimulator::applyCollisionForces(const int& i, const float& t
 
 		//Collisiondetection
 		CollisionInfo ci;
-		cout << ci.isValid << ci.normalWorld.toString() << endl;
 		ci = checkCollisionSAT(Obj2WorldMatrix_A, Obj2WorldMatrix_B); //To test: Is the collpoint of A or of B?
-		cout << ci.isValid << ci.normalWorld.toString()<< endl;
 		cout << "In RigidBodySystemSimulator.cpp > getCollisionForceOf() : Hardcoded parameter" << endl;
 		float c = 0.5f;
 		if (ci.isValid) {
