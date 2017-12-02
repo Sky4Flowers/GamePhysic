@@ -377,8 +377,14 @@ namespace collisionTools{
 					   XMVectorGetByIndex(size_B, (whichEdges % 3)),
 					   bestSingleAxis);
 		}break;
+		default: {
+			info.collisionPointWorld = NULL;
+			info.depth = 0;
+			info.isValid = false;
+			info.normalWorld = NULL;
+			return info;
 		}
-
+		}
 
 		info.isValid = true;
 		info.collisionPointWorld = collisionPoint;
@@ -397,7 +403,6 @@ inline CollisionInfo checkCollisionSAT(GamePhysics::Mat4& obj2World_A, GamePhysi
 	XMMATRIX MatA = obj2World_A.toDirectXMatrix(), MatB = obj2World_B.toDirectXMatrix();
 	XMVECTOR calSizeA = getBoxSize(MatA);
 	XMVECTOR calSizeB = getBoxSize(MatB);
-	
 	return checkCollisionSATHelper(MatA, MatB, calSizeA, calSizeB);
 }
 

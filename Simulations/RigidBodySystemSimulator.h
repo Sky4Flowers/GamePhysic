@@ -36,8 +36,8 @@ public:
 	void setVelocityOf(int i, Vec3 velocity);
 
 	//Own Functions
-	void RigidBodySystemSimulator::applyCollisionForces(const int&);
-	void RigidBodySystemSimulator::doTheJ(const Vec3&, const Vec3&, const int&, const int&, const float&);
+	void RigidBodySystemSimulator::applyCollisionForces(const int&, const float&);
+	void RigidBodySystemSimulator::doTheJ(const Vec3&, const Vec3&, const int&, const int&, const float&, const float&);
 
 private:
 	// Attributes
