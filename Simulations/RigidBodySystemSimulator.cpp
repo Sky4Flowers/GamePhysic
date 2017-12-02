@@ -2,7 +2,7 @@
 
 RigidBodySystemSimulator::RigidBodySystemSimulator()
 {
-	
+
 }
 
 const char * RigidBodySystemSimulator::getTestCasesStr()
@@ -54,11 +54,12 @@ void RigidBodySystemSimulator::drawFrame(ID3D11DeviceContext * pd3dImmediateCont
 
 void RigidBodySystemSimulator::notifyCaseChanged(int testCase)
 {
+	m_iTestCase = testCase;
 	//print case
 	cout << "Notify: " << testCase << "\n";
 	//clear everything
 	bodies.clear();
-	switch (testCase) 
+	switch (testCase)
 	{
 	case 0:
 		isFirstStep = true;
@@ -87,49 +88,64 @@ void RigidBodySystemSimulator::simulateTimestep(float timeStep)
 {
 	//update q in this method
 
-	for (int i = 0; i < bodies.size(); i++) {
-		//TBD
-		Vec3 forceSum = Vec3(0, 0, 0);
-		//here: calc of q
-		Vec3 q = Vec3(0, 0, 0); //q is torque
-		//all pts
-		//forces - do the apply-force on body method
+	//which scene?
+	switch (m_iTestCase)
+	{
+	//demo 1
+	case 0:
+		for (int i = 0; i < bodies.size(); i++) {
+			//TBD
+			Vec3 forceSum = Vec3(0, 0, 0);
+			//here: calc of q
+			Vec3 q = Vec3(0, 0, 0); //q is torque
+									//all pts
+									//forces - do the apply-force on body method
 
-		//we still have to get them !!!!!!!!!!!!!!!
+									//we still have to get them !!!!!!!!!!!!!!!
 
-		//hard coded force which is only relevant to the first demo
-		if (isFirstStep) 
-		{
-			newApplyForce(&forceSum, &q, Vec3(0.3f, 0.5f, 0.25f), Vec3(1, 1, 0));
-			isFirstStep = false;
+									//hard coded force which is only relevant to the first demo
+			if (isFirstStep)
+			{
+				newApplyForce(&forceSum, &q, Vec3(0.3f, 0.5f, 0.25f), Vec3(1, 1, 0));
+			}
+
+			//collision here...
+
+			//euler
+
+			Vec3 accel = calcAccel(forceSum, i);
+
+			//update position of first point
+			bodies[i].pos += bodies[i].vel *timeStep;
+			bodies[i].vel += accel *timeStep;
+
+			//rotation
+			//update rotation r
+			bodies[i].rot += (timeStep / 2.0f)*Quat( //caution! unsure about the angularVel as quaternion
+				0, bodies[i].angularVel.x, bodies[i].angularVel.y, bodies[i].angularVel.z
+				) * bodies[i].rot;
+			bodies[i].rot /= bodies[i].rot.norm(); //normalize the rotation quaternion
+												   //update angualr momentrum L
+			bodies[i].angularMomentum += timeStep*q;
+			//update inertia tensor I
+			updateTensor(&(bodies[i]));
+			//update angualr velocity w
+			bodies[i].angularVel = bodies[i].inertiaTensor.inverse() * bodies[i].angularMomentum;
+			//world position stuff -- maybe there is no need for this.
+
+			//if this is the first step, print the solution: angular / linear velocity
+			if (isFirstStep)
+			{
+				isFirstStep = false;
+				cout << "---RESULTS FOR DEMO 1---\nAngular VelocitY = " << bodies[i].angularVel <<
+					".\nLinear Velocity = " <<	bodies[i].vel << "\n";
+			}
 		}
-		
-		//collision here...
-
-		//euler
-
-		Vec3 accel = calcAccel(forceSum, i);
-			
-		//update position of first point
-		bodies[i].pos += bodies[i].vel *timeStep;
-		bodies[i].vel += accel *timeStep;
-
-		//rotation
-		//update rotation r
-		bodies[i].rot += (timeStep / 2.0f)*Quat( //caution! unsure about the angularVel as quaternion
-			0, bodies[i].angularVel.x, bodies[i].angularVel.y, bodies[i].angularVel.z 
-			) * bodies[i].rot;
-		bodies[i].rot /= bodies[i].rot.norm(); //normalize the rotation quaternion
-		//update angualr momentrum L
-		bodies[i].angularMomentum += timeStep*q;
-		//update inertia tensor I
-		updateTensor(&(bodies[i]));
-		//update angualr velocity w
-		bodies[i].angularVel = bodies[i].inertiaTensor.inverse() * bodies[i].angularMomentum;
-		//world position stuff
-		//debug
-		//cout <<"Matrix: \n"<< bodies[i].rot.getRotMat() << "Quat:" <<"\n" << bodies[i].rot<<"\n";
+		break;
 	}
+
+
+
 
 }
 
@@ -169,9 +185,9 @@ void RigidBodySystemSimulator::applyForceOnBody(int i, Vec3 loc, Vec3 force)
 	//bodies[i].acc += force;
 }
 
-void RigidBodySystemSimulator::newApplyForce(Vec3 *forceSum, Vec3 *q, Vec3 loc, Vec3 force) 
+void RigidBodySystemSimulator::newApplyForce(Vec3 *forceSum, Vec3 *q, Vec3 loc, Vec3 force)
 {
-	*q += cross(force,loc);
+	*q += cross(force, loc);
 	*forceSum += force;
 }
 
@@ -193,7 +209,7 @@ void RigidBodySystemSimulator::addRigidBody(Vec3 position, Vec3 size, int mass)
 		, 0, 0, 0, 1
 		);
 
-	tmp.inertiaTensor *= (float)tmp.mass / 12.0f ;
+	tmp.inertiaTensor *= (float)tmp.mass / 12.0f;
 	//set the last entry of the matrix as a 1 (not sure about this)
 	tmp.inertiaTensor.value[3][3] = 1.0f;
 	cout << "Added a rigidBody. Inertia tensor:\n" << tmp.inertiaTensor << "\n";
@@ -201,7 +217,7 @@ void RigidBodySystemSimulator::addRigidBody(Vec3 position, Vec3 size, int mass)
 	//set the Angular Momentum
 	tmp.angularMomentum = tmp.inertiaTensor * tmp.angularVel;
 	cout << (tmp.angularMomentum) << "\n";
-	
+
 	bodies.push_back(tmp);
 }
 
@@ -223,7 +239,7 @@ void RigidBodySystemSimulator::getCollisionForcesOf(const int& i) {
 	scaleMat.initScaling(bodies[i].size.x, bodies[i].size.y, bodies[i].size.z);
 	Obj2WorldMatrix_A = scaleMat * rotMat * transMat;
 
-	for (int k = i + 1; k < bodies.size();k++) {
+	for (int k = i + 1; k < bodies.size(); k++) {
 		//calc Obj2WorldMatrix for Object B
 		rotMat = bodies[k].rot.getRotMat();
 		scaleMat.initScaling(bodies[k].size.x, bodies[k].size.y, bodies[k].size.z);
@@ -247,14 +263,14 @@ void RigidBodySystemSimulator::doTheJ(const Vec3& point, const Vec3& normal_n, c
 	float J = dot(-(1 + c)*(vrel), normal_n) /
 		((1 / bodies[body_a].mass)
 			+ (1 / bodies[body_b].mass)
-			+ dot(pxn_a,pxn_a) / bodies[body_a].iTensor
-			+ dot(pxn_b,pxn_b) / bodies[body_b].iTensor);
+			+ dot(pxn_a, pxn_a) / bodies[body_a].iTensor
+			+ dot(pxn_b, pxn_b) / bodies[body_b].iTensor);
 	bodies[body_a].vel += J*normal_n / bodies[body_a].mass;
 	bodies[body_b].vel -= J*normal_n / bodies[body_b].mass;
 	bodies[body_a].angularVel += cross(point - bodies[body_a].pos, J*normal_n) / bodies[body_a].iTensor;
 	bodies[body_b].angularVel += cross(point - bodies[body_b].pos, J*normal_n) / bodies[body_b].iTensor;
 }
-void RigidBodySystemSimulator::updateTensor(rigidBody *body) 
+void RigidBodySystemSimulator::updateTensor(rigidBody *body)
 {
 	Mat4 transposed = body->rot.getRotMat();
 	transposed.transpose();
