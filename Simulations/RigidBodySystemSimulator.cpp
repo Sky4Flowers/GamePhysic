@@ -66,6 +66,12 @@ void RigidBodySystemSimulator::notifyCaseChanged(int testCase)
 		addRigidBody(Vec3(0, 0, 0), Vec3(1, 0.6, 0.5), 2);
 		//set rotation
 		setOrientationOf(0, Quat(0, 0, M_PI / 2.0f));
+		break;
+	case 1:
+		addRigidBody(Vec3(0, 0, 0), Vec3(1, 0.6, 0.5), 2);
+		//set rotation
+		setOrientationOf(0, Quat(0, 0, M_PI / 2.0f));
+		break;
 	}
 
 }
@@ -88,64 +94,58 @@ void RigidBodySystemSimulator::simulateTimestep(float timeStep)
 {
 	//update q in this method
 
-	//which scene?
-	switch (m_iTestCase)
-	{
-	//demo 1
-	case 0:
-		for (int i = 0; i < bodies.size(); i++) {
-			//TBD
-			Vec3 forceSum = Vec3(0, 0, 0);
-			//here: calc of q
-			Vec3 q = Vec3(0, 0, 0); //q is torque
-									//all pts
-									//forces - do the apply-force on body method
-
-									//we still have to get them !!!!!!!!!!!!!!!
-
-									//hard coded force which is only relevant to the first demo
-			if (isFirstStep)
-			{
-				newApplyForce(&forceSum, &q, Vec3(0.3f, 0.5f, 0.25f), Vec3(1, 1, 0));
-			}
-
-			//collision here...
-
-			//euler
-
-			Vec3 accel = calcAccel(forceSum, i);
-
-			//update position of first point
-			bodies[i].pos += bodies[i].vel *timeStep;
-			bodies[i].vel += accel *timeStep;
-
-			//rotation
-			//update rotation r
-			bodies[i].rot += (timeStep / 2.0f)*Quat( //caution! unsure about the angularVel as quaternion
-				0, bodies[i].angularVel.x, bodies[i].angularVel.y, bodies[i].angularVel.z
-				) * bodies[i].rot;
-			bodies[i].rot /= bodies[i].rot.norm(); //normalize the rotation quaternion
-												   //update angualr momentrum L
-			bodies[i].angularMomentum += timeStep*q;
-			//update inertia tensor I
-			updateTensor(&(bodies[i]));
-			//update angualr velocity w
-			bodies[i].angularVel = bodies[i].inertiaTensor.inverse() * bodies[i].angularMomentum;
-			//world position stuff -- maybe there is no need for this.
-
-			//if this is the first step, print the solution: angular / linear velocity
-			if (isFirstStep)
-			{
-				isFirstStep = false;
-				cout << "---RESULTS FOR DEMO 1---\nAngular VelocitY = " << bodies[i].angularVel <<
-					".\nLinear Velocity = " <<	bodies[i].vel << "\n";
-			}
+	for (int i = 0; i < bodies.size(); i++) {
+		//TBD
+		Vec3 forceSum = Vec3(0, 0, 0);
+		//here: calc of q
+		Vec3 q = Vec3(0, 0, 0); //q is torque
+		//all pts
+		//forces - do the apply-force on body method. relevant for demo 2, 4
+		if (m_iTestCase == 1) 
+		{
+			//apply forces to body
 		}
-		break;
+
+		//we still have to get them !!!!!!!!!!!!!!!
+
+		//hard coded force which is only relevant to the first demo
+		if (m_iTestCase==0 && isFirstStep)
+		{
+			newApplyForce(&forceSum, &q, Vec3(0.3f, 0.5f, 0.25f), Vec3(1, 1, 0));
+		}
+
+		//collision here... only relevant for demos 3 and 4
+
+		//euler
+
+		Vec3 accel = calcAccel(forceSum, i);
+
+		//update position of first point
+		bodies[i].pos += bodies[i].vel *timeStep;
+		bodies[i].vel += accel *timeStep;
+
+		//rotation
+		//update rotation r
+		bodies[i].rot += (timeStep / 2.0f)*Quat( //caution! unsure about the angularVel as quaternion
+			0, bodies[i].angularVel.x, bodies[i].angularVel.y, bodies[i].angularVel.z
+			) * bodies[i].rot;
+		bodies[i].rot /= bodies[i].rot.norm(); //normalize the rotation quaternion
+											   //update angualr momentrum L
+		bodies[i].angularMomentum += timeStep*q;
+		//update inertia tensor I
+		updateTensor(&(bodies[i]));
+		//update angualr velocity w
+		bodies[i].angularVel = bodies[i].inertiaTensor.inverse() * bodies[i].angularMomentum;
+		//world position stuff -- maybe there is no need for this.
+
+		//if this is the first step, print the solution: angular / linear velocity
+		if (isFirstStep)
+		{
+			isFirstStep = false;
+			cout << "---RESULTS FOR DEMO 1---\nAngular VelocitY = " << bodies[i].angularVel <<
+				".\nLinear Velocity = " << bodies[i].vel << "\n";
+		}
 	}
-
-
-
 
 }
 
