@@ -64,7 +64,7 @@ private:
 		Vec3 angularMomentum; // L
 		
 		int mass;
-		float iTensor; //this is inertia tenosr as a float, it should be 4x4. remove this after fixing dotheJ method
+		float iTensor;
 	};
 
 	//vector of rigidBodies
