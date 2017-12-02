@@ -143,7 +143,7 @@ void RigidBodySystemSimulator::simulateTimestep(float timeStep)
 
 	//Collision part
 	for (int i = 0; i < bodies.size(); i++) {
-		applyCollisionForces(i);
+		//applyCollisionForces(i);
 	}
 }
 
