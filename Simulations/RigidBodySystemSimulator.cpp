@@ -79,8 +79,9 @@ void RigidBodySystemSimulator::notifyCaseChanged(int testCase)
 		//set rotation
 		setOrientationOf(0, Quat(0, 0, M_PI / 2.0f));
 		//moving RB
-		addRigidBody(Vec3(0, 0.5, 3), Vec3(1, 1, 1), 4);
-		setVelocityOf(1, Vec3(0, 0, -1));	
+		addRigidBody(Vec3(0, 0.5, 3), Vec3(1, 0.6, 0.5), 2);
+		setOrientationOf(1, Quat(0, 0, M_PI / 2.0f));
+		setVelocityOf(1, Vec3(0, 0, -1));
 	}
 }
 
@@ -214,6 +215,7 @@ void RigidBodySystemSimulator::addRigidBody(Vec3 position, Vec3 size, int mass)
 	tmp.mass = mass;
 	tmp.rot = Quat();
 	tmp.angularVel = Vec3();
+	tmp.vel = Vec3();
 	//set initial inertia tensor for rigidBodies
 	//note: this is a 4x4 matrix, although the calculation was 3x3
 	tmp.inertiaTensor = Mat4(
@@ -250,12 +252,14 @@ void RigidBodySystemSimulator::setVelocityOf(int i, Vec3 velocity)
 void RigidBodySystemSimulator::applyCollisionForces(const int& i, const float& timeStep) {
 	Mat4 scaleMat, transMat, rotMat, Obj2WorldMatrix_A, Obj2WorldMatrix_B;
 	//calc Obj2WorldMatrix for Object A
+	transMat.initTranslation(bodies[i].pos.x, bodies[i].pos.y, bodies[i].pos.z);
 	rotMat = bodies[i].rot.getRotMat();
 	scaleMat.initScaling(bodies[i].size.x, bodies[i].size.y, bodies[i].size.z);
 	Obj2WorldMatrix_A = scaleMat * rotMat * transMat;
 
 	for (int k = i + 1; k < bodies.size(); k++) {
 		//calc Obj2WorldMatrix for Object B
+		transMat.initTranslation(bodies[k].pos.x, bodies[k].pos.y, bodies[k].pos.z);
 		rotMat = bodies[k].rot.getRotMat();
 		scaleMat.initScaling(bodies[k].size.x, bodies[k].size.y, bodies[k].size.z);
 		Obj2WorldMatrix_B = scaleMat * rotMat * transMat;
@@ -263,11 +267,14 @@ void RigidBodySystemSimulator::applyCollisionForces(const int& i, const float& t
 		//Collisiondetection
 		CollisionInfo ci;
 		ci = checkCollisionSAT(Obj2WorldMatrix_A, Obj2WorldMatrix_B); //To test: Is the collpoint of A or of B?
-		cout << "In RigidBodySystemSimulator.cpp > getCollisionForceOf() : Hardcoded parameter" << endl;
+		
 		float c = 0.5f;
 		if (ci.isValid) {
+			cout << "In RigidBodySystemSimulator.cpp > applyCollisionForces() : Hardcoded parameter" << endl;
+			cout << "Collision!" << endl;
 			doTheJ(ci.collisionPointWorld, ci.normalWorld, i, k, c, timeStep);
 		}
+		//cout << "Collisions done" << endl;
 	}
 }
 
@@ -291,7 +298,6 @@ void RigidBodySystemSimulator::doTheJ(const Vec3& point, const Vec3& normal_n, c
 
 	bodies[body_a].angularMomentum += timeStep*cross(point - bodies[body_a].pos, J*normal_n);//cross(point - bodies[body_a].pos, J*normal_n) / bodies[body_a].iTensor;
 	bodies[body_b].angularMomentum += timeStep*cross(point - bodies[body_b].pos, J*normal_n);//cross(point - bodies[body_b].pos, J*normal_n) / bodies[body_b].iTensor;
-
 }
 void RigidBodySystemSimulator::updateTensor(rigidBody *body) {
 	Mat4 transposed = body->rot.getRotMat();
