@@ -280,12 +280,17 @@ void RigidBodySystemSimulator::applyCollisionForces(const int& i, const float& t
 
 //TODO: fix this, inertia tensor is not a float
 void RigidBodySystemSimulator::doTheJ(const Vec3& point, const Vec3& normal_n, const int& body_a, const int& body_b, const float& c, const float& timeStep) {
+	printRigidInfo(body_a);
 	//Crossproduct of x(i) and n
 	Vec3 pxn_a = cross(point - bodies[body_a].pos, normal_n);
 	Vec3 pxn_b = cross(point - bodies[body_b].pos, normal_n);
 	Vec3 vrel = (bodies[body_a].vel + cross(bodies[body_a].angularVel, pxn_a)) - (bodies[body_b].vel + cross(bodies[body_b].angularVel, pxn_b));
-	Quat invITa = bodies[body_a].inertiaTensor.inverse();
-	Quat invITb = bodies[body_b].inertiaTensor.inverse();
+	//Quat invITa = bodies[body_a].inertiaTensor.inverse();
+	//Quat invITb = bodies[body_b].inertiaTensor.inverse();
+	GamePhysics::Mat4 tmp1 = bodies[body_a].inertiaTensor;
+	GamePhysics::Mat4 tmp2 = bodies[body_b].inertiaTensor;
+	Quat invITa = tmp1.inverse();
+	Quat invITb = tmp2.inverse();
 	//Calculate J
 	float J = dot(-(1 + c)*(vrel), normal_n) /
 		((1 / bodies[body_a].mass)
@@ -298,6 +303,7 @@ void RigidBodySystemSimulator::doTheJ(const Vec3& point, const Vec3& normal_n, c
 
 	bodies[body_a].angularMomentum += timeStep*cross(point - bodies[body_a].pos, J*normal_n);//cross(point - bodies[body_a].pos, J*normal_n) / bodies[body_a].iTensor;
 	bodies[body_b].angularMomentum += timeStep*cross(point - bodies[body_b].pos, J*normal_n);//cross(point - bodies[body_b].pos, J*normal_n) / bodies[body_b].iTensor;
+	printRigidInfo(body_a);
 }
 void RigidBodySystemSimulator::updateTensor(rigidBody *body) {
 	Mat4 transposed = body->rot.getRotMat();
@@ -307,3 +313,12 @@ void RigidBodySystemSimulator::updateTensor(rigidBody *body) {
 	body->inertiaTensor.value[3][3] = 1.0f;
 }
 
+void RigidBodySystemSimulator::printRigidInfo(int i) {
+	cout << "\nVelocity: " << bodies[i].vel.toString()
+		<< "\nSize: " << bodies[i].size.toString()
+		<< "\nPosition: " << bodies[i].pos.toString()
+		<< "\nInertial Tensor: " << bodies[i].inertiaTensor
+		<< "Angular Velocity: " << bodies[i].angularVel.toString()
+		<< "\nRotation: " << bodies[i].rot.getAxis().toString()
+		<< "\n" << endl;
+}
