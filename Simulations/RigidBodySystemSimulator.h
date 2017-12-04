@@ -54,6 +54,12 @@ private:
 	Point2D m_trackmouse;
 	Point2D m_oldtrackmouse;
 
+	//for forces with mouse
+	bool isDragged = false;
+	Vec3 first;
+	float clickRadius;
+	Vec3 newF;
+
 	//rigidBody struct
 	struct RigidBody {
 		Vec3 pos; //position

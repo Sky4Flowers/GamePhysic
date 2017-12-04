@@ -2,7 +2,8 @@
 
 RigidBodySystemSimulator::RigidBodySystemSimulator()
 {
-	
+	clickRadius = 3.0f;
+	isDragged = false;
 }
 
 const char * RigidBodySystemSimulator::getTestCasesStr()
@@ -114,7 +115,9 @@ void RigidBodySystemSimulator::simulateTimestep(float timeStep)
 		//forces - do the apply-force on body method. relevant for demo 2, 4
 		if (m_iTestCase == 1) 
 		{
-			//apply forces to body
+			Vec3 topRightDeep = Vec3(bodies[i].pos.x -(0.5*bodies[i].size.x), bodies[i].pos.y + (0.5*bodies[i].size.y), bodies[i].pos.z + (0.5*bodies[i].size.z));
+			topRightDeep = bodies[i].rot.getRotMat().transformVector(topRightDeep);
+			newApplyForce(&forceSum,&q,topRightDeep,newF);
 		}
 
 		//we still have to get them !!!!!!!!!!!!!!!
@@ -159,7 +162,7 @@ void RigidBodySystemSimulator::simulateTimestep(float timeStep)
 			cout << "---RESULTS FOR DEMO 1---\nAngular VelocitY = " << bodies[i].angularVel <<
 				".\nLinear Velocity = " << bodies[i].vel << "\n";
 		}
-	}
+	}	newF = Vec3(0, 0, 0);
 }
 
 
@@ -168,6 +171,11 @@ void RigidBodySystemSimulator::onClick(int x, int y)
 	m_trackmouse.x = x;
 	m_trackmouse.y = y;
 	cout << "mouse clicked with pos: " << x << "," << y << "\n";
+	if (!isDragged){//&& (m_iIntegrator == 4 || m_iIntegrator == 5)) {
+		isDragged = true;
+		first = Vec3(x, y, 0);
+		cout << "firstest vec: " << first << "\n";
+	}
 }
 
 void RigidBodySystemSimulator::onMouse(int x, int y)
@@ -176,6 +184,16 @@ void RigidBodySystemSimulator::onMouse(int x, int y)
 	m_oldtrackmouse.y = y;
 	m_trackmouse.x = x;
 	m_trackmouse.y = y;
+	if (isDragged) {
+		//cout << "first vec: " << first.x << "," << first.y;
+		if ((sqrt(Vec3(x, y, 0).squaredDistanceTo(first)) >= clickRadius)) {
+			isDragged = false;
+			newF = Vec3(x, y, 0) - first;
+			newF *= Vec3(1, -1, 0);
+			cout << "external force: " << newF.x << "," << newF.y << "\n";
+			//test in welchen rigidbody die external force reingeht
+		}
+	}
 }
 
 int RigidBodySystemSimulator::getNumberOfRigidBodies()
