@@ -82,6 +82,8 @@ void RigidBodySystemSimulator::notifyCaseChanged(int testCase)
 		addRigidBody(Vec3(0, 0.5, 3), Vec3(1, 0.6, 0.5), 2);
 		setOrientationOf(1, Quat(0, 0, M_PI / 2.0f));
 		setVelocityOf(1, Vec3(0, 0, -1));
+		//bodies[1].angularVel = Vec3(800, 800, 0);
+		bodies[1].angularMomentum = Vec3(1, 1, 0);
 	}
 }
 
@@ -145,7 +147,9 @@ void RigidBodySystemSimulator::simulateTimestep(float timeStep)
 		//update inertia tensor I
 		updateTensor(&(bodies[i]));
 		//update angualr velocity w
+		//cout << bodies[i].angularVel << endl;
 		bodies[i].angularVel = bodies[i].inertiaTensor.inverse() * bodies[i].angularMomentum;
+		//cout << bodies[i].angularVel << endl;
 		//world position stuff -- maybe there is no need for this.
 
 		//if this is the first step, print the solution: angular / linear velocity
@@ -209,7 +213,7 @@ void RigidBodySystemSimulator::newApplyForce(Vec3 *forceSum, Vec3 *q, Vec3 loc, 
 
 void RigidBodySystemSimulator::addRigidBody(Vec3 position, Vec3 size, int mass)
 {
-	rigidBody tmp;
+	RigidBody tmp;
 	tmp.pos = position;
 	tmp.size = size;
 	tmp.mass = mass;
@@ -268,44 +272,67 @@ void RigidBodySystemSimulator::applyCollisionForces(const int& i, const float& t
 		CollisionInfo ci;
 		ci = checkCollisionSAT(Obj2WorldMatrix_A, Obj2WorldMatrix_B); //To test: Is the collpoint of A or of B?
 		
-		float c = 0.5f;
+		float c = 0;
 		if (ci.isValid) {
+			for (int j = 0; j < collisions.size(); j++) {
+				if (collisions[j].body_a == i&&collisions[j].body_b == k) {
+					return;
+				}
+			}
+			Collision co;
+			co.body_a = i;
+			co.body_b = k;
+			collisions.push_back(co);
 			cout << "In RigidBodySystemSimulator.cpp > applyCollisionForces() : Hardcoded parameter" << endl;
 			cout << "Collision!" << endl;
 			doTheJ(ci.collisionPointWorld, ci.normalWorld, i, k, c, timeStep);
+		}
+		else {
+			for (int j = 0; j < collisions.size(); j++) {
+				if (collisions[j].body_a == i&&collisions[j].body_b == k) {
+					collisions.erase(collisions.begin() + j);
+				}
+			}
 		}
 		//cout << "Collisions done" << endl;
 	}
 }
 
 //TODO: fix this, inertia tensor is not a float
-void RigidBodySystemSimulator::doTheJ(const Vec3& point, const Vec3& normal_n, const int& body_a, const int& body_b, const float& c, const float& timeStep) {
+void RigidBodySystemSimulator::doTheJ(Vec3 point, Vec3 normal_n,int body_a,int body_b,float c, float timeStep) {
 	printRigidInfo(body_a);
+	printRigidInfo(body_b);
 	//Crossproduct of x(i) and n
-	Vec3 pxn_a = cross(point - bodies[body_a].pos, normal_n);
-	Vec3 pxn_b = cross(point - bodies[body_b].pos, normal_n);
-	Vec3 vrel = (bodies[body_a].vel + cross(bodies[body_a].angularVel, pxn_a)) - (bodies[body_b].vel + cross(bodies[body_b].angularVel, pxn_b));
+	Vec3 point_a = point - bodies[body_a].pos;
+	Vec3 point_b = point - bodies[body_b].pos;
+	Vec3 pxn_a = cross(point_a, normal_n);
+	Vec3 pxn_b = cross(point_b, normal_n);
+	Vec3 vrel = (bodies[body_a].vel + cross(bodies[body_a].angularVel, point_a)) - (bodies[body_b].vel + cross(bodies[body_b].angularVel, point_b));
 	//Quat invITa = bodies[body_a].inertiaTensor.inverse();
 	//Quat invITb = bodies[body_b].inertiaTensor.inverse();
 	GamePhysics::Mat4 tmp1 = bodies[body_a].inertiaTensor;
 	GamePhysics::Mat4 tmp2 = bodies[body_b].inertiaTensor;
-	Quat invITa = tmp1.inverse();
-	Quat invITb = tmp2.inverse();
+	Mat4 invITa = tmp1.inverse();
+	Mat4 invITb = tmp2.inverse();
 	//Calculate J
 	float J = dot(-(1 + c)*(vrel), normal_n) /
 		((1 / bodies[body_a].mass)
 			+ (1 / bodies[body_b].mass)
-			+ dot(cross(invITa.getAxis()*pxn_a, normal_n)//dot(pxn_a,pxn_a) / bodies[body_a].iTensor
-			+ cross(invITb.getAxis()*pxn_b, normal_n), normal_n));//dot(pxn_b,pxn_b) / bodies[body_b].iTensor);
+			+ dot(cross(invITa*pxn_a, point_a)//dot(pxn_a,pxn_a) / bodies[body_a].iTensor
+			+ cross(invITb*pxn_b, point_b), normal_n));//dot(pxn_b,pxn_b) / bodies[body_b].iTensor);
 	//Update the velocities	
+	cout << "J: " << J << "\nNormale: " << normal_n.toString() << "\nMasse: " << bodies[body_a].mass << endl;
 	bodies[body_a].vel += J*normal_n / bodies[body_a].mass;
 	bodies[body_b].vel -= J*normal_n / bodies[body_b].mass;
 
-	bodies[body_a].angularMomentum += timeStep*cross(point - bodies[body_a].pos, J*normal_n);//cross(point - bodies[body_a].pos, J*normal_n) / bodies[body_a].iTensor;
-	bodies[body_b].angularMomentum += timeStep*cross(point - bodies[body_b].pos, J*normal_n);//cross(point - bodies[body_b].pos, J*normal_n) / bodies[body_b].iTensor;
+	bodies[body_a].angularMomentum += cross(point - bodies[body_a].pos, J*normal_n);//cross(point - bodies[body_a].pos, J*normal_n) / bodies[body_a].iTensor;
+	bodies[body_b].angularMomentum -= cross(point - bodies[body_b].pos, J*normal_n);//cross(point - bodies[body_b].pos, J*normal_n) / bodies[body_b].iTensor;
 	printRigidInfo(body_a);
+	printRigidInfo(body_b);
+	updateTensor(&(bodies[body_a]));
+	updateTensor(&(bodies[body_b]));
 }
-void RigidBodySystemSimulator::updateTensor(rigidBody *body) {
+void RigidBodySystemSimulator::updateTensor(RigidBody *body) {
 	Mat4 transposed = body->rot.getRotMat();
 	transposed.transpose();
 	//get I_0
@@ -319,6 +346,6 @@ void RigidBodySystemSimulator::printRigidInfo(int i) {
 		<< "\nPosition: " << bodies[i].pos.toString()
 		<< "\nInertial Tensor: " << bodies[i].inertiaTensor
 		<< "Angular Velocity: " << bodies[i].angularVel.toString()
-		<< "\nRotation: " << bodies[i].rot.getAxis().toString()
+		<< "\nRotation: " << bodies[i].rot.getRotMat()
 		<< "\n" << endl;
 }

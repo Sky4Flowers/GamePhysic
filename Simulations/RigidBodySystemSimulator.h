@@ -37,7 +37,7 @@ public:
 
 	//Own Functions
 	void RigidBodySystemSimulator::applyCollisionForces(const int&, const float&);
-	void RigidBodySystemSimulator::doTheJ(const Vec3&, const Vec3&, const int&, const int&, const float&, const float&);
+	void RigidBodySystemSimulator::doTheJ(Vec3, Vec3, int, int, float, float);
 	void RigidBodySystemSimulator::printRigidInfo(int);
 
 private:
@@ -55,7 +55,7 @@ private:
 	Point2D m_oldtrackmouse;
 
 	//rigidBody struct
-	struct rigidBody {
+	struct RigidBody {
 		Vec3 pos; //position
 		Vec3 size; //size
 		Vec3 vel; //v
@@ -68,11 +68,20 @@ private:
 		float iTensor;
 	};
 
+	//collision struct
+	struct Collision {
+		int body_a;
+		int body_b;
+	};
+
 	//vector of rigidBodies
-	vector<rigidBody> bodies;
+	vector<RigidBody> bodies;
+
+	//vector of collisions
+	vector<Collision> collisions;
 
 	//self made methods
-	void updateTensor(rigidBody * body);
+	void updateTensor(RigidBody * body);
 	Vec3 calcAccel(Vec3 force, int index);
 	};
 #endif
