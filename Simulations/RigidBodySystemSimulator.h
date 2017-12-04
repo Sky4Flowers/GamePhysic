@@ -47,7 +47,7 @@ private:
 	//variable for use of the first demo: only use one timestep
 	bool isFirstStep = true;
 	Vec3 m_externalForce;
-	float m_gravity;
+	float m_gravity=0;
 
 	// UI Attributes
 	Point2D m_mouse;

@@ -14,7 +14,7 @@ const char * RigidBodySystemSimulator::getTestCasesStr()
 void RigidBodySystemSimulator::initUI(DrawingUtilitiesClass * DUC)
 {
 	this->DUC = DUC;
-	//TwAddVarRW(DUC->g_pTweakBar, "Gravity", TW_TYPE_FLOAT, &m_gravity, "min=-20.0 step=0.1");
+	TwAddVarRW(DUC->g_pTweakBar, "Gravity", TW_TYPE_FLOAT, &m_gravity, "min=-20.0 step=0.1");
 }
 
 void RigidBodySystemSimulator::reset()
@@ -73,7 +73,15 @@ void RigidBodySystemSimulator::notifyCaseChanged(int testCase)
 		addRigidBody(Vec3(0, 0, 0), Vec3(1, 0.6, 0.5), 2);
 		//set rotation
 		setOrientationOf(0, Quat(0, 0, M_PI / 2.0f));
-		break;	
+		break;
+	case 2:
+		addRigidBody(Vec3(0, 0, 0), Vec3(1, 0.6, 0.5), 2);
+		setOrientationOf(0, Quat(0, 0, M_PI / 2.0f));
+
+		addRigidBody(Vec3(0, 0.5, 3), Vec3(1, 0.6, 0.5), 2);
+		setOrientationOf(1, Quat(M_PI / 3.0f, M_PI / 3.0f, M_PI / 3.0f));
+		setVelocityOf(1, Vec3(0, 0, -1));
+		break;
 	default:
 		//Collision Test
 		addRigidBody(Vec3(0, 0, 0), Vec3(1, 0.6, 0.5), 2);
@@ -82,9 +90,13 @@ void RigidBodySystemSimulator::notifyCaseChanged(int testCase)
 		//moving RB
 		addRigidBody(Vec3(0, 0.5, 3), Vec3(1, 0.6, 0.5), 2);
 		setOrientationOf(1, Quat(0, 0, M_PI / 2.0f));
-		setVelocityOf(1, Vec3(0, 0, -1));
+		setVelocityOf(1, Vec3(0, 0, -10));
 		//bodies[1].angularVel = Vec3(800, 800, 0);
 		bodies[1].angularMomentum = Vec3(1, 1, 0);
+		addRigidBody(Vec3(0, 0, -2), Vec3(1, 0.6, 0.5), 2);
+		setOrientationOf(2, Quat(0, 0, M_PI / 2.0f));
+		addRigidBody(Vec3(0, 0, -4), Vec3(1, 0.6, 0.5), 2);
+		setOrientationOf(3, Quat(0, 0, M_PI / 2.0f));
 	}
 }
 
@@ -113,7 +125,7 @@ void RigidBodySystemSimulator::simulateTimestep(float timeStep)
 		Vec3 q = Vec3(0, 0, 0); //q is torque
 		//all pts
 		//forces - do the apply-force on body method. relevant for demo 2, 4
-		if (m_iTestCase == 1) 
+		if (m_iTestCase == 1 || m_iTestCase == 3) 
 		{
 			Vec3 topRightDeep = Vec3(bodies[i].pos.x -(0.5*bodies[i].size.x), bodies[i].pos.y + (0.5*bodies[i].size.y), bodies[i].pos.z + (0.5*bodies[i].size.z));
 			topRightDeep = bodies[i].rot.getRotMat().transformVector(topRightDeep);
@@ -131,7 +143,9 @@ void RigidBodySystemSimulator::simulateTimestep(float timeStep)
 		//collision here... only relevant for demos 3 and 4
 		
 		//euler
-
+		if (m_iTestCase == 3) {
+			bodies[i].vel += Vec3(0, -1, 0)*m_gravity * bodies[i].mass;
+		}
 		Vec3 accel = calcAccel(forceSum, i);
 
 		//update position of first point
