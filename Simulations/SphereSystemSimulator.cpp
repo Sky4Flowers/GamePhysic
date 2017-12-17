@@ -12,7 +12,9 @@ std::function<float(float)> SphereSystemSimulator::m_Kernels[5] = {
 
 // Construtors
 SphereSystemSimulator::SphereSystemSimulator() {
-	
+	//set the confines
+	walls.centre = Vec3();
+	walls.dist = 0.5f;
 }
 // Functions
 const char * SphereSystemSimulator::getTestCasesStr() {
@@ -42,6 +44,13 @@ void SphereSystemSimulator::drawFrame(ID3D11DeviceContext* pd3dImmediateContext)
 void SphereSystemSimulator::notifyCaseChanged(int testCase) {
 	//clear the points
 	spheres.clear();
+	//add test sphere
+	sphere test;
+	test.mass = 2;
+	test.Pos = Vec3();
+	test.radius = 0.1f;
+	test.Vel = Vec3(1, 0.7f, 0.2f);
+	spheres.push_back(test);
 }
 
 void SphereSystemSimulator::externalForcesCalculations(float timeElapsed) {
@@ -67,7 +76,25 @@ void SphereSystemSimulator::applyMidpoint(float timeStep)
 		sph->Pos += timeStep * vtmp;
 		//update accel from collisions again! based on xtmp and vtmp
 		sph->Vel += timeStep * accel;
+		//handle wall collisions
+		checkWalls(sph);
 	}
+}
+
+void SphereSystemSimulator::checkWalls(sphere *ball) 
+{
+	//check x value
+	if ((ball->Pos.x - ball->radius) <= (walls.centre.x - walls.dist) ||
+		(ball->Pos.x + ball->radius) >= (walls.centre.x + walls.dist))
+		ball->Vel *= Vec3(-1, 1, 1);
+	//check y value
+	if ((ball->Pos.y - ball->radius) <= (walls.centre.y - walls.dist) ||
+		(ball->Pos.y + ball->radius) >= (walls.centre.y + walls.dist))
+		ball->Vel *= Vec3(1, -1, 1);
+	//check z value
+	if ((ball->Pos.z - ball->radius) <= (walls.centre.z - walls.dist) ||
+		(ball->Pos.z + ball->radius) >= (walls.centre.z + walls.dist))
+		ball->Vel *= Vec3(1, 1, -1);
 }
 
 void SphereSystemSimulator::onClick(int x, int y) {
