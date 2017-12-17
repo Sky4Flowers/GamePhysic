@@ -18,6 +18,7 @@ public:
 	void notifyCaseChanged(int testCase);
 	void externalForcesCalculations(float timeElapsed);
 	void simulateTimestep(float timeStep);
+	void applyMidpoint(float timeStep);
 	void onClick(int x, int y);
 	void onMouse(int x, int y);
 	void findCollisions(int, int, int);
@@ -44,6 +45,16 @@ protected:
 	// you will need multiple SphereSystem objects to do comparisons in Demo 3
 	// m_iAccelerator should be ignored.
 	// SphereSystem * m_pSphereSystemGrid; 
+
+	//struct for sphere
+	struct sphere {
+		Vec3 Pos;//Position
+		Vec3 Vel;//Velocity
+		float mass;
+	};
+
+	//vector containing spheres
+	vector<sphere> spheres;
 
 };
 
