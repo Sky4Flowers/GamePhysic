@@ -59,6 +59,9 @@ void SphereSystemSimulator::applyMidpoint(float timeStep)
 		Vec3 accel;
 		//calc accel from collisions
 		Vec3 vtmp = sph->Vel + accel * timeStep / 2.0f;
+		sph->Pos += timeStep * vtmp;
+		//update accel from collisions again! based on xtmp and vtmp
+		sph->Vel += timeStep * accel;
 	}
 }
 
