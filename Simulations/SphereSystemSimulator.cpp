@@ -9,3 +9,44 @@ std::function<float(float)> SphereSystemSimulator::m_Kernels[5] = {
 };
 
 // SphereSystemSimulator member functions
+
+// Construtors
+SphereSystemSimulator::SphereSystemSimulator() {
+
+}
+// Functions
+const char * getTestCasesStr() {
+
+}
+
+void initUI(DrawingUtilitiesClass * DUC) {
+
+}
+
+void reset() {
+
+}
+
+void drawFrame(ID3D11DeviceContext* pd3dImmediateContext) {
+
+}
+
+void notifyCaseChanged(int testCase) {
+
+}
+
+void externalForcesCalculations(float timeElapsed) {
+
+}
+
+void simulateTimestep(float timeStep) {
+
+}
+
+void onClick(int x, int y) {
+
+}
+
+void onMouse(int x, int y) {
+
+}
