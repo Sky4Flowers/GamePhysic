@@ -21,8 +21,9 @@ const char * SphereSystemSimulator::getTestCasesStr() {
 
 void SphereSystemSimulator::initUI(DrawingUtilitiesClass * DUC) {
 	this->DUC = DUC;
-	//TwAddVarRW(DUC->g_pTweakBar, "Num Spheres", TW_TYPE_INT32, &m_numSpheres, "min=1");
-	//TwAddVarRW(DUC->g_pTweakBar, "Sphere Size", TW_TYPE_FLOAT, &m_sphereSize, "min=0.01 step=0.01");
+	TwAddVarRW(DUC->g_pTweakBar, "Num Spheres", TW_TYPE_INT32, &m_iNumSpheres, "min=1");
+	TwAddVarRW(DUC->g_pTweakBar, "Sphere Mass", TW_TYPE_FLOAT, &m_fMass, "min=0.001 step=0.001");
+	TwAddVarRW(DUC->g_pTweakBar, "Sphere Size", TW_TYPE_FLOAT, &m_fRadius, "min=0.001 step=0.001");
 	//TwAddVarRW(DUC->g_pTweakBar, "Ext. Force Intensity", TW_TYPE_FLOAT, &intensity, "min=0.0 step=0.1");
 	//TwAddVarRW(DUC->g_pTweakBar, "Gravity", TW_TYPE_FLOAT, &m_gravity, "min=-20.0 step=0.1");
 }
@@ -53,4 +54,16 @@ void SphereSystemSimulator::onClick(int x, int y) {
 
 void SphereSystemSimulator::onMouse(int x, int y) {
 
+}
+
+void SphereSystemSimulator::findCollisions(int collisionCase, int obj_a, int obj_b) {
+	if (collisionCase == 1) {//Grid
+
+	}
+	else if (collisionCase == 2) {//KD-Tree
+
+	}
+	else {//Check all spheres
+		if()
+	}
 }
