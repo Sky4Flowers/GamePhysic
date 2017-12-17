@@ -15,38 +15,42 @@ SphereSystemSimulator::SphereSystemSimulator() {
 
 }
 // Functions
-const char * getTestCasesStr() {
+const char * SphereSystemSimulator::getTestCasesStr() {
+	return "Demo1, Demo2, Demo3";
+}
+
+void SphereSystemSimulator::initUI(DrawingUtilitiesClass * DUC) {
+	this->DUC = DUC;
+	//TwAddVarRW(DUC->g_pTweakBar, "Num Spheres", TW_TYPE_INT32, &m_numSpheres, "min=1");
+	//TwAddVarRW(DUC->g_pTweakBar, "Sphere Size", TW_TYPE_FLOAT, &m_sphereSize, "min=0.01 step=0.01");
+	//TwAddVarRW(DUC->g_pTweakBar, "Ext. Force Intensity", TW_TYPE_FLOAT, &intensity, "min=0.0 step=0.1");
+	//TwAddVarRW(DUC->g_pTweakBar, "Gravity", TW_TYPE_FLOAT, &m_gravity, "min=-20.0 step=0.1");
+}
+
+void SphereSystemSimulator::reset() {
 
 }
 
-void initUI(DrawingUtilitiesClass * DUC) {
+void SphereSystemSimulator::drawFrame(ID3D11DeviceContext* pd3dImmediateContext) {
 
 }
 
-void reset() {
+void SphereSystemSimulator::notifyCaseChanged(int testCase) {
 
 }
 
-void drawFrame(ID3D11DeviceContext* pd3dImmediateContext) {
+void SphereSystemSimulator::externalForcesCalculations(float timeElapsed) {
 
 }
 
-void notifyCaseChanged(int testCase) {
+void SphereSystemSimulator::simulateTimestep(float timeStep) {
 
 }
 
-void externalForcesCalculations(float timeElapsed) {
+void SphereSystemSimulator::onClick(int x, int y) {
 
 }
 
-void simulateTimestep(float timeStep) {
-
-}
-
-void onClick(int x, int y) {
-
-}
-
-void onMouse(int x, int y) {
+void SphereSystemSimulator::onMouse(int x, int y) {
 
 }
