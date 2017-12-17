@@ -12,7 +12,7 @@ std::function<float(float)> SphereSystemSimulator::m_Kernels[5] = {
 
 // Construtors
 SphereSystemSimulator::SphereSystemSimulator() {
-
+	
 }
 // Functions
 const char * SphereSystemSimulator::getTestCasesStr() {
@@ -34,6 +34,10 @@ void SphereSystemSimulator::reset() {
 
 void SphereSystemSimulator::drawFrame(ID3D11DeviceContext* pd3dImmediateContext) {
 
+	for (int i = 0; i < spheres.size(); i++) 
+	{
+		DUC->drawSphere(spheres[i].Pos, spheres[i].radius);
+	}
 }
 
 void SphereSystemSimulator::notifyCaseChanged(int testCase) {
@@ -47,6 +51,7 @@ void SphereSystemSimulator::externalForcesCalculations(float timeElapsed) {
 
 void SphereSystemSimulator::simulateTimestep(float timeStep) {
 	//apply midpoint step
+	applyMidpoint(timeStep);
 }
 
 void SphereSystemSimulator::applyMidpoint(float timeStep) 
@@ -60,6 +65,9 @@ void SphereSystemSimulator::applyMidpoint(float timeStep)
 		Vec3 accel;
 		//calc accel from collisions
 		Vec3 vtmp = sph->Vel + accel * timeStep / 2.0f;
+		sph->Pos += timeStep * vtmp;
+		//update accel from collisions again! based on xtmp and vtmp
+		sph->Vel += timeStep * accel;
 	}
 }
 

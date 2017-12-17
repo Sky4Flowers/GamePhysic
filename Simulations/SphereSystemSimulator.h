@@ -50,6 +50,7 @@ protected:
 	struct sphere {
 		Vec3 Pos;//Position
 		Vec3 Vel;//Velocity
+		float radius;//radius of the sphere
 		float mass;
 	};
 
