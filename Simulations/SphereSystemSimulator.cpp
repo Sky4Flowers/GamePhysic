@@ -79,6 +79,12 @@ void SphereSystemSimulator::findCollisions(int collisionCase, int obj_a, int obj
 
 	}
 	else {//Check all spheres
-		if()
+		Vec3 relativeDistance = (spheres[obj_a].Pos - spheres[obj_b].Pos).getAbsolutes() / m_fRadius * 2;
+		if (relativeDistance<=1) {
+			//Calculate Forcedirection
+			Vec3 vel_a=spheres[obj_a].Vel-spheres[obj_b].Vel
+
+
+		}
 	}
 }
