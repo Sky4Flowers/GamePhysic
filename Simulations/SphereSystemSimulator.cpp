@@ -73,10 +73,24 @@ void SphereSystemSimulator::applyMidpoint(float timeStep)
 		Vec3 xtmp = sph->Pos + sph->Vel * timeStep / 2.0f;
 		Vec3 accel;
 		//calc accel from collisions
+		accel = findCollisions(0, i)/sph->mass;
 		Vec3 vtmp = sph->Vel + accel * timeStep / 2.0f;
-		sph->Pos += timeStep * vtmp;
+		//sph->Pos += timeStep * vtmp;
+
+		//Zwischenspeichern alter Werte
+		Vec3 oldPos = sph->Pos;
+		Vec3 oldVel = sph->Vel;
+		//Setzen von Zwischenwerten
+		sph->Pos = xtmp;
+		sph->Vel = vtmp;
+		//Berechnen von Acceleration und Endwerten
+		accel = findCollisions(0, i) / sph->mass;
+		sph->Pos = oldPos + timeStep * vtmp;
+		sph->Vel = oldVel + timeStep * accel;
+
 		//update accel from collisions again! based on xtmp and vtmp
-		sph->Vel += timeStep * accel;
+
+		//sph->Vel += timeStep * accel;
 		//handle wall collisions
 		checkWalls(sph);
 	}
@@ -107,6 +121,7 @@ void SphereSystemSimulator::onMouse(int x, int y) {
 }
 
 Vec3 SphereSystemSimulator::findCollisions(int collisionCase, int obj_a) {
+	Vec3 force = Vec3(0,0,0);
 	for (int i = 0; i < spheres.size(); i++) {
 		if (collisionCase == 1) {//Grid
 			cout << "Not implemented! Case Grid" << endl;
@@ -122,8 +137,9 @@ Vec3 SphereSystemSimulator::findCollisions(int collisionCase, int obj_a) {
 				Vec3 normal = spheres[obj_a].Pos - spheres[i].Pos;
 				normal /= norm(normal);
 				normal *= m_Kernels[0](relativeDistance) * (1 - relativeDistance);
-				return normal;
+				force += normal;
 			}
 		}
 	}
+	return force;
 }
