@@ -58,7 +58,6 @@ protected:
 	vector<sphere> spheres;
 
 
-
 	struct confines {
 		Vec3 centre;
 		float dist;
