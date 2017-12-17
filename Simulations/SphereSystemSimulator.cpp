@@ -36,7 +36,8 @@ void SphereSystemSimulator::drawFrame(ID3D11DeviceContext* pd3dImmediateContext)
 }
 
 void SphereSystemSimulator::notifyCaseChanged(int testCase) {
-
+	//clear the points
+	spheres.clear();
 }
 
 void SphereSystemSimulator::externalForcesCalculations(float timeElapsed) {
@@ -44,7 +45,21 @@ void SphereSystemSimulator::externalForcesCalculations(float timeElapsed) {
 }
 
 void SphereSystemSimulator::simulateTimestep(float timeStep) {
+	//apply midpoint step
+}
 
+void SphereSystemSimulator::applyMidpoint(float timeStep) 
+{
+	//iterate through spheres
+	for (int i = 0; i < spheres.size(); i++) 
+	{
+		//do midpoint for each of the spheres
+		sphere *sph = &(spheres[i]);
+		Vec3 xtmp = sph->Pos + sph->Vel * timeStep / 2.0f;
+		Vec3 accel;
+		//calc accel from collisions
+		Vec3 vtmp = sph->Vel + accel * timeStep / 2.0f;
+	}
 }
 
 void SphereSystemSimulator::onClick(int x, int y) {
