@@ -79,20 +79,24 @@ void SphereSystemSimulator::onMouse(int x, int y) {
 
 }
 
-void SphereSystemSimulator::findCollisions(int collisionCase, int obj_a, int obj_b) {
-	if (collisionCase == 1) {//Grid
-
-	}
-	else if (collisionCase == 2) {//KD-Tree
-
-	}
-	else {//Check all spheres
-		Vec3 relativeDistance = (spheres[obj_a].Pos - spheres[obj_b].Pos).getAbsolutes() / m_fRadius * 2;
-		if (relativeDistance<=1) {
-			//Calculate Forcedirection
-			Vec3 vel_a=spheres[obj_a].Vel-spheres[obj_b].Vel
-
-
+Vec3 SphereSystemSimulator::findCollisions(int collisionCase, int obj_a) {
+	for (int i = 0; i < spheres.size(); i++) {
+		if (collisionCase == 1) {//Grid
+			cout << "Not implemented! Case Grid" << endl;
+		}
+		else if (collisionCase == 2) {//KD-Tree
+			cout << "Not implemented! Case KD-Tree" << endl;
+		}
+		else {//Check all spheres
+			Vec3 absRelPos = (spheres[obj_a].Pos - spheres[i].Pos).getAbsolutes();
+			float relativeDistance = sqrt(pow(absRelPos.x, 2) + pow(absRelPos.y, 2) + pow(absRelPos.z, 2)) / (m_fRadius * 2);
+			if (relativeDistance <= 1) {
+				//Calculate Forcedirection
+				Vec3 normal = spheres[obj_a].Pos - spheres[i].Pos;
+				normal /= norm(normal);
+				normal *= m_Kernels[0](relativeDistance) * (1 - relativeDistance);
+				return normal;
+			}
 		}
 	}
 }

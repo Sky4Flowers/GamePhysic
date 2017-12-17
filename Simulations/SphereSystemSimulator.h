@@ -21,7 +21,7 @@ public:
 	void applyMidpoint(float timeStep);
 	void onClick(int x, int y);
 	void onMouse(int x, int y);
-	void findCollisions(int, int, int);
+	Vec3 findCollisions(int, int);
 	
 protected:
 	// Attributes
