@@ -39,12 +39,13 @@ protected:
 	static std::function<float(float)> m_Kernels[5];
 	
 	int   m_iAccelerator; // switch between NAIVEACC and GRIDACC, (optionally, KDTREEACC, 2)
-	
+	float m_gravity;
+
 	//SphereSystem * m_pSphereSystem; // add your own sphere system member!
 	// for Demo 3 only:
 	// you will need multiple SphereSystem objects to do comparisons in Demo 3
 	// m_iAccelerator should be ignored.
-	// SphereSystem * m_pSphereSystemGrid; 
+	//SphereSystem * m_pSphereSystemGrid; 
 
 	//struct for sphere
 	struct sphere {
@@ -66,6 +67,7 @@ protected:
 	confines walls;
 
 	void checkWalls(sphere * ball);
+	void addSphere(Vec3, Vec3);
 };
 
 #endif

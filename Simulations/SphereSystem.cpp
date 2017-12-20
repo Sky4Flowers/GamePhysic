@@ -1,6 +1,6 @@
-﻿#include "SphereSystemSimulator.h"
+#include "SphereSystem.h"
 
-std::function<float(float)> SphereSystemSimulator::m_Kernels[5] = {
+std::function<float(float)> SphereSystem::m_Kernels[5] = {
 	[](float x) {return 1.0f; },              // Constant, m_iKernel = 0
 	[](float x) {return 1.0f - x; },          // Linear, m_iKernel = 1, as given in the exercise Sheet, x = d/2r
 	[](float x) {return (1.0f - x)*(1.0f - x); }, // Quadratic, m_iKernel = 2
@@ -11,109 +11,39 @@ std::function<float(float)> SphereSystemSimulator::m_Kernels[5] = {
 // SphereSystemSimulator member functions
 
 // Construtors
-SphereSystemSimulator::SphereSystemSimulator() {
+SphereSystem::SphereSystem(Vec3 center, float distance) {
 	//set the confines
-	walls.centre = Vec3();
-	walls.dist = 0.5f;
-}
-// Functions
-const char * SphereSystemSimulator::getTestCasesStr() {
-	return "Demo1, Demo2, Demo3";
+	walls.centre = center;
+	walls.dist = distance;
 }
 
-void SphereSystemSimulator::initUI(DrawingUtilitiesClass * DUC) {
-	this->DUC = DUC;
-	TwAddVarRW(DUC->g_pTweakBar, "Num Spheres", TW_TYPE_INT32, &m_iNumSpheres, "min=1");
-	TwAddVarRW(DUC->g_pTweakBar, "Sphere Mass", TW_TYPE_FLOAT, &m_fMass, "min=0.001 step=0.001");
-	TwAddVarRW(DUC->g_pTweakBar, "Sphere Size", TW_TYPE_FLOAT, &m_fRadius, "min=0.001 step=0.001");
-	//TwAddVarRW(DUC->g_pTweakBar, "Ext. Force Intensity", TW_TYPE_FLOAT, &intensity, "min=0.0 step=0.1");
-	TwAddVarRW(DUC->g_pTweakBar, "Gravity", TW_TYPE_FLOAT, &m_gravity, "min=-20.0 step=0.1");
-}
-
-void SphereSystemSimulator::reset() {
-
-}
-
-void SphereSystemSimulator::drawFrame(ID3D11DeviceContext* pd3dImmediateContext) {
-
-	for (int i = 0; i < spheres.size(); i++) 
-	{
-		DUC->drawSphere(spheres[i].Pos, spheres[i].radius);
-	}
-}
-
-void SphereSystemSimulator::notifyCaseChanged(int testCase) {
-	//clear the points
+void SphereSystem::reset() {
 	spheres.clear();
-	switch (testCase) {
-	case 0:
-		m_fRadius = 0.1f;
-		m_fMass = 1;
-		m_gravity = 0.01f;
-		for (int i = 0; i < m_iNumSpheres; i++) {
-			Vec3 pos = Vec3(walls.centre.x, walls.centre.y, walls.centre.z);
-			addSphere(pos, walls.centre-pos);
-		}
-		break;
-	case 1:
-		m_fRadius = 0.1f;
-		m_fMass = 1;
-		m_gravity = 0.01f;
-		for (int i = 0; i < m_iNumSpheres; i++) {
-
-		}
-		break;
-	case 2:
-		m_fRadius = 0.1f;
-		m_fMass = 1;
-		m_gravity = 0.01f;
-		m_iNumSpheres = 100;
-		for (int i = 0; i < m_iNumSpheres; i++) {
-
-		}
-		break;
-	default:
-		cout << "Undeclared case" << endl;
-		break;
-	}
-	//add test sphere
-	m_fRadius = 0.1f;
-	sphere test;
-	test.mass = 2;
-	test.Pos = Vec3(0.25f,0.1f,0);
-	test.radius = 0.1f;
-	test.Vel = Vec3(-0.1f,0,0);
-	spheres.push_back(test);
-
-	test.mass = 2;
-	test.Pos = Vec3(-0.25f,0,0);
-	test.radius = 0.1f;
-	test.Vel = Vec3(0.1f, 0, 0);
-	spheres.push_back(test);
+	grid = new int[];
 }
 
-void SphereSystemSimulator::externalForcesCalculations(float timeElapsed) {
+void SphereSystem::externalForcesCalculations(float timeElapsed) {
 
 }
 
-void SphereSystemSimulator::simulateTimestep(float timeStep) {
+void SphereSystem::simulateTimestep(float timeStep) {
 	//apply midpoint step
 	applyMidpoint(timeStep);
 }
 
-void SphereSystemSimulator::applyMidpoint(float timeStep) 
+void SphereSystem::applyMidpoint(float timeStep)
 {
 
 	vector<sphere> newSpheres;
 	//iterate through spheres
-	for (int i = 0; i < spheres.size(); i++) 
+	for (int i = 0; i < spheres.size(); i++)
 	{
 		//do midpoint for each of the spheres
 		sphere *sph = &(spheres[i]);
 		Vec3 xtmp = sph->Pos + sph->Vel * timeStep / 2.0f;
 		Vec3 accel;
 		//calc accel from collisions
-		accel = findCollisions(0, i)/sph->mass;
+		accel = findCollisions(0, i) / sph->mass;
 		Vec3 vtmp = sph->Vel + accel * timeStep / 2.0f;
 		//sph->Pos += timeStep * vtmp;
 
@@ -143,7 +73,7 @@ void SphereSystemSimulator::applyMidpoint(float timeStep)
 	spheres = newSpheres;
 }
 
-void SphereSystemSimulator::checkWalls(sphere *ball) 
+void SphereSystem::checkWalls(sphere *ball)
 {
 	//check x value
 	if ((ball->Pos.x - ball->radius) <= (walls.centre.x - walls.dist) ||
@@ -159,16 +89,8 @@ void SphereSystemSimulator::checkWalls(sphere *ball)
 		ball->Vel *= Vec3(1, 1, -1);
 }
 
-void SphereSystemSimulator::onClick(int x, int y) {
-
-}
-
-void SphereSystemSimulator::onMouse(int x, int y) {
-
-}
-
-Vec3 SphereSystemSimulator::findCollisions(int collisionCase, int obj_a) {
-	Vec3 force = Vec3(0,0,0);
+Vec3 SphereSystem::findCollisions(int collisionCase, int obj_a) {
+	Vec3 force = Vec3(0, 0, 0);
 	for (int i = 0; i < spheres.size(); i++) {
 		if (i == obj_a) {
 			continue;
@@ -195,11 +117,25 @@ Vec3 SphereSystemSimulator::findCollisions(int collisionCase, int obj_a) {
 	return force;
 }
 
-void SphereSystemSimulator::addSphere(Vec3 position, Vec3 velocity) {
+void SphereSystem::addSphere(Vec3 position, Vec3 velocity) {
 	sphere neu;
 	neu.mass = m_fMass;
 	neu.Pos = position;
 	neu.Vel = velocity;
 	neu.radius = m_fRadius;
 	spheres.push_back(neu);
+}
+
+const vector<SphereSystem::sphere>* SphereSystem::getContent() {
+	return &spheres;
+}
+
+void SphereSystem::rasterise() {
+	int size1D = walls.dist / m_fRadius;
+	grid = new int[size1D*size1D*size1D];
+	for (int i = 0; i < spheres.size()-1; i++) {
+		if (spheres[i].Pos.getAbsolutes.x > spheres[i + 1].Pos.getAbsolutes.x) {
+			
+		}
+	}
 }
